@@ -15,20 +15,20 @@ arPass=arMail=""
 # 获得外网地址
 arIpAdress() {
     local inter="http://members.3322.org/dyndns/getip"
-    wget --quiet --no-check-certificate --output-document=- $inter
+    wget --quiet --output-document=- $inter
 }
 
 # 查询域名地址
 # 参数: 待查询域名
 arNslookup() {
-    local dnsvr="http://119.29.29.29/d?dn="
-    wget --quiet --no-check-certificate --output-document=- $dnsvr$1
+    local inter="http://119.29.29.29/d?dn="
+    wget --quiet --output-document=- $inter$1
 }
 
 # 读取接口数据
 # 参数: 接口类型 待提交数据
 arApiPost() {
-    local agent="AnripDdns/3.08(mail@anrip.com)"
+    local agent="AnripDdns/5.07(mail@anrip.com)"
     local inter="https://dnsapi.cn/${1:?'Info.Version'}"
     local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
     wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
