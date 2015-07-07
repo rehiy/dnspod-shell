@@ -1,29 +1,30 @@
+
 #!/bin/sh
- 
+
 #################################################
-# AnripDdns v3.08.09
-# 基于DNSPod用户API实现的动态域名客户端a
+# AnripDdns v5.07.07
+# 基于DNSPod用户API实现的动态域名客户端
 # 作者: 若海[mail@anrip.com]
 # 介绍: http://www.anrip.com/ddnspod
-# 时间: 2013-08-08 23:25:00
+# 时间: 2015-07-07 10:25:00
 #################################################
- 
+
 # 全局变量表
 arPass=arMail=""
- 
+
 # 获得外网地址
 arIpAdress() {
     local inter="http://members.3322.org/dyndns/getip"
     wget --quiet --no-check-certificate --output-document=- $inter
 }
- 
+
 # 查询域名地址
 # 参数: 待查询域名
 arNslookup() {
-    local dnsvr="114.114.114.114"
-    nslookup ${1} $dnsvr | tr -d '\n[:blank:]' | sed 's/.\+1 \([0-9\.]\+\)/\1/'
+    local dnsvr="http://119.29.29.29/d?dn="
+    wget --quiet --no-check-certificate --output-document=- $dnsvr$1
 }
- 
+
 # 读取接口数据
 # 参数: 接口类型 待提交数据
 arApiPost() {
@@ -32,7 +33,7 @@ arApiPost() {
     local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
     wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
 }
- 
+
 # 更新记录信息
 # 参数: 主域名 子域名
 arDdnsUpdate() {
@@ -54,7 +55,7 @@ arDdnsUpdate() {
     # 输出错误信息
     echo $recordRS | sed 's/.\+,"message":"\([^"]\+\)".\+/\1/'
 }
- 
+
 # 动态检查更新
 # 参数: 主域名 子域名
 arDdnsCheck() {
@@ -72,13 +73,13 @@ arDdnsCheck() {
     fi
     return 1
 }
- 
+
 ###################################################
- 
+
 # 设置用户参数
 arMail="user@anrip.com"
 arPass="anrip.net"
- 
+
 # 检查更新域名
 arDdnsCheck "anrip.com" "lab"
 arDdnsCheck "anrip.net" "lab"
