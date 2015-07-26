@@ -14,14 +14,12 @@ arPass=arMail=""
 
 # 获得外网地址
 arIpAdress() {
-    local inter="http://members.3322.org/dyndns/getip"
-    wget --quiet --output-document=- $inter
+    ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1
 }
 
 # 查询域名地址
 # 参数: 待查询域名
 arNslookup() {
-    local inter="http://119.29.29.29/d?dn="
     wget --quiet --output-document=- $inter$1
 }
 
@@ -37,7 +35,7 @@ arApiPost() {
 # 更新记录信息
 # 参数: 主域名 子域名
 arDdnsUpdate() {
-    local domainID recordID recordRS recordCD
+    local domainID recordID recordRS recordCD myIP
     # 获得域名ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
     domainID=$(echo $domainID | sed 's/.\+{"id":"\([0-9]\+\)".\+/\1/')
@@ -45,7 +43,8 @@ arDdnsUpdate() {
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
     recordID=$(echo $recordID | sed 's/.\+\[{"id":"\([0-9]\+\)".\+/\1/')
     # 更新记录IP
-    recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_line=默认")
+    myIP=$(arNslookup)
+    recordRS=$(arApiPost "Record.Modify" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.\+{"code":"\([0-9]\+\)".\+/\1/')
     # 输出记录IP
     if [ "$recordCD" == "1" ]; then
