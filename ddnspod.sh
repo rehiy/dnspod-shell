@@ -43,7 +43,7 @@ arDdnsUpdate() {
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
     recordID=$(echo $recordID | sed 's/.\+\[{"id":"\([0-9]\+\)".\+/\1/')
     # 更新记录IP
-    myIP=$(arNslookup)
+    myIP=$(arIpAdress)
     recordRS=$(arApiPost "Record.Modify" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.\+{"code":"\([0-9]\+\)".\+/\1/')
     # 输出记录IP
