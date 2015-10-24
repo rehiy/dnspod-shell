@@ -45,7 +45,7 @@ arDdnsUpdate() {
     recordRS=$(arApiPost "Record.Modify" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.\+{"code":"\([0-9]\+\)".\+/\1/')
     # Output IP
-    if [ "$recordCD" == "1" ]; then
+    if [ "$recordCD" = "1" ]; then
         echo $recordRS | sed 's/.\+,"value":"\([0-9\.]\+\)".\+/\1/'
         return 1
     fi
