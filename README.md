@@ -1,6 +1,9 @@
 # ArDNSPod
 基于DNSPod用户API实现的纯Shell动态域名客户端
 
+2015年2月24日
+－ 增加token权鉴方式 (by wbchn)
+
 2015年7月7日
 - 使用D+服务获取域名解析
 
