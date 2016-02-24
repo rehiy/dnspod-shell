@@ -10,7 +10,9 @@
 #################################################
 
 # 全局变量表
-arPass=arMail=""
+arToken=""
+arPass=""
+arMail=""
 
 # 获得外网地址
 arIpAdress() {
@@ -30,7 +32,11 @@ arNslookup() {
 arApiPost() {
     local agent="AnripDdns/5.07(mail@anrip.com)"
     local inter="https://dnsapi.cn/${1:?'Info.Version'}"
-    local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
+    if [ "x${arToken}" = "x" ]; then # undefine token
+        local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
+    else
+        local param="login_token=${arToken}&format=json&${2}"
+    fi
     wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
 }
 
