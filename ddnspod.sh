@@ -2,17 +2,18 @@
 #!/bin/sh
 
 #################################################
-# AnripDdns v5.07.07
+# AnripDdns v5.08
 # 基于DNSPod用户API实现的动态域名客户端
 # 作者: 若海[mail@anrip.com]
 # 介绍: http://www.anrip.com/ddnspod
-# 时间: 2015-07-07 10:25:00
+# 时间: 2016-02-24 16:25:00
 #################################################
 
-# 全局变量表
+# 使用Token认证(推荐)
 arToken=""
-arPass=""
+# 使用邮箱和密码认证
 arMail=""
+arPass=""
 
 # 获得外网地址
 arIpAdress() {
@@ -81,11 +82,8 @@ arDdnsCheck() {
 }
 
 ###################################################
-
-# 设置用户参数
-arMail="user@anrip.com"
-arPass="anrip.net"
-
 # 检查更新域名
+
 arDdnsCheck "anrip.com" "lab"
-arDdnsCheck "anrip.net" "lab"
+arDdnsCheck "anrip.net" "dev"
+
