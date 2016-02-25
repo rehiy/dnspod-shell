@@ -1,4 +1,3 @@
-
 #!/bin/sh
 
 #################################################
@@ -7,12 +6,16 @@
 # Edited by ProfFan
 #################################################
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source $DIR/dns.conf
+
 # Global Variables
-arPass=arMail=""
+# arPass=arMail=""
 
 # Port IP
 arIpAdress() {
-    ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1
+    ipconfig getifaddr en6
 }
 
 # Get Domain IP
@@ -37,13 +40,16 @@ arDdnsUpdate() {
     # Get domain ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
     domainID=$(echo $domainID | sed 's/.\+{"id":"\([0-9]\+\)".\+/\1/')
+    
     # Get Record ID
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
     recordID=$(echo $recordID | sed 's/.\+\[{"id":"\([0-9]\+\)".\+/\1/')
+    
     # Update IP
     myIP=$(arIpAdress)
-    recordRS=$(arApiPost "Record.Modify" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
+    recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.\+{"code":"\([0-9]\+\)".\+/\1/')
+
     # Output IP
     if [ "$recordCD" = "1" ]; then
         echo $recordRS | sed 's/.\+,"value":"\([0-9\.]\+\)".\+/\1/'
@@ -74,9 +80,10 @@ arDdnsCheck() {
 ###################################################
 
 # User
-arMail="user@anrip.com"
-arPass="anrip.net"
 
 # DDNS
-arDdnsCheck "anrip.com" "lab"
-arDdnsCheck "anrip.net" "lab"
+echo ${#domains[@]}
+for index in ${!domains[@]}; do
+    echo "${domains[index]} ${subdomains[index]}"
+    arDdnsCheck "${domains[index]}" "${subdomains[index]}"
+done
