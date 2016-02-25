@@ -1,20 +1,62 @@
 #!/bin/sh
 
 #################################################
-# AnripDdns v5.07.07
+# AnripDdns v5.08
 # Dynamic DNS using DNSPod API
+# Original by anrip<mail@anrip.com>, http://www.anrip.com/ddnspod
 # Edited by ProfFan
 #################################################
 
+# OS Detection
+case $(uname) in
+  'Linux')
+    echo "Linux"
+    arIpAddress() {
+        ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1
+    }
+    ;;
+  'FreeBSD')
+    echo 'FreeBSD'
+    exit 100
+    ;;
+  'WindowsNT')
+    echo "Windows"
+    exit 100
+    ;;
+  'Darwin') 
+    echo "Mac"
+    arIpAddress() {
+        ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'
+    }
+    ;;
+  'SunOS')
+    echo 'Solaris'
+    exit 100
+    ;;
+  'AIX') 
+    echo 'AIX'
+    exit 100
+    ;;
+  *) ;;
+esac
+
+# Get script dir
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Global Variables:
+
+# Token-based Authentication
+arToken=""
+# Account-based Authentication
+arMail=""
+arPass=""
+
+# Load config
 
 source $DIR/dns.conf
 
-# Global Variables
-# arPass=arMail=""
-
 # Port IP
-arIpAdress() {
+arIpAddress() {
     ipconfig getifaddr en6
 }
 
@@ -29,7 +71,11 @@ arNslookup() {
 arApiPost() {
     local agent="AnripDdns/5.07(mail@anrip.com)"
     local inter="https://dnsapi.cn/${1:?'Info.Version'}"
-    local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
+    if [ "x${arToken}" = "x" ]; then # undefine token
+        local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
+    else
+        local param="login_token=${arToken}&format=json&${2}"
+    fi
     wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
 }
 
@@ -39,31 +85,31 @@ arDdnsUpdate() {
     local domainID recordID recordRS recordCD myIP
     # Get domain ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
-    domainID=$(echo $domainID | sed 's/.\+{"id":"\([0-9]\+\)".\+/\1/')
+    domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
     
     # Get Record ID
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
-    recordID=$(echo $recordID | sed 's/.\+\[{"id":"\([0-9]\+\)".\+/\1/')
+    recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
     
     # Update IP
-    myIP=$(arIpAdress)
+    myIP=$(arIpAddress)
     recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
-    recordCD=$(echo $recordRS | sed 's/.\+{"code":"\([0-9]\+\)".\+/\1/')
+    recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
 
     # Output IP
     if [ "$recordCD" = "1" ]; then
-        echo $recordRS | sed 's/.\+,"value":"\([0-9\.]\+\)".\+/\1/'
+        echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/'
         return 1
     fi
     # Echo error message
-    echo $recordRS | sed 's/.\+,"message":"\([^"]\+\)".\+/\1/'
+    echo $recordRS | sed 's/.*,"message":"\([^"]*\)".*/\1/'
 }
 
 # DDNS Check
 # Arg: Main Sub
 arDdnsCheck() {
     local postRS
-    local hostIP=$(arIpAdress)
+    local hostIP=$(arIpAddress)
     local lastIP=$(arNslookup "${2}.${1}")
     echo "hostIP: ${hostIP}"
     echo "lastIP: ${lastIP}"
@@ -76,10 +122,6 @@ arDdnsCheck() {
     fi
     return 1
 }
-
-###################################################
-
-# User
 
 # DDNS
 echo ${#domains[@]}
