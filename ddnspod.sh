@@ -1,35 +1,73 @@
-
 #!/bin/sh
 
 #################################################
 # AnripDdns v5.08
-# 基于DNSPod用户API实现的动态域名客户端
-# 作者: 若海[mail@anrip.com]
-# 介绍: http://www.anrip.com/ddnspod
-# 时间: 2016-02-24 16:25:00
+# Dynamic DNS using DNSPod API
+# Original by anrip<mail@anrip.com>, http://www.anrip.com/ddnspod
+# Edited by ProfFan
 #################################################
 
-# 使用Token认证(推荐)
+# OS Detection
+case $(uname) in
+  'Linux')
+    echo "Linux"
+    arIpAddress() {
+        ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1
+    }
+    ;;
+  'FreeBSD')
+    echo 'FreeBSD'
+    exit 100
+    ;;
+  'WindowsNT')
+    echo "Windows"
+    exit 100
+    ;;
+  'Darwin') 
+    echo "Mac"
+    arIpAddress() {
+        ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'
+    }
+    ;;
+  'SunOS')
+    echo 'Solaris'
+    exit 100
+    ;;
+  'AIX') 
+    echo 'AIX'
+    exit 100
+    ;;
+  *) ;;
+esac
+
+# Get script dir
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Global Variables:
+
+# Token-based Authentication
 arToken=""
-# 使用邮箱和密码认证
+# Account-based Authentication
 arMail=""
 arPass=""
 
-# 获得外网地址
-arIpAdress() {
-    local inter="http://members.3322.org/dyndns/getip"
-    wget --quiet --output-document=- $inter
+# Load config
+
+source $DIR/dns.conf
+
+# Port IP
+arIpAddress() {
+    ipconfig getifaddr en6
 }
 
-# 查询域名地址
-# 参数: 待查询域名
+# Get Domain IP
+# arg: domain
 arNslookup() {
-    local inter="http://119.29.29.29/d?dn="
     wget --quiet --output-document=- $inter$1
 }
 
-# 读取接口数据
-# 参数: 接口类型 待提交数据
+# Get data
+# arg: type data
 arApiPost() {
     local agent="AnripDdns/5.07(mail@anrip.com)"
     local inter="https://dnsapi.cn/${1:?'Info.Version'}"
@@ -41,33 +79,37 @@ arApiPost() {
     wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
 }
 
-# 更新记录信息
-# 参数: 主域名 子域名
+# Update
+# arg: main domain  sub domain
 arDdnsUpdate() {
-    local domainID recordID recordRS recordCD
-    # 获得域名ID
+    local domainID recordID recordRS recordCD myIP
+    # Get domain ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
-    domainID=$(echo $domainID | sed 's/.\+{"id":"\([0-9]\+\)".\+/\1/')
-    # 获得记录ID
+    domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
+    
+    # Get Record ID
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
-    recordID=$(echo $recordID | sed 's/.\+\[{"id":"\([0-9]\+\)".\+/\1/')
-    # 更新记录IP
-    recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_line=默认")
-    recordCD=$(echo $recordRS | sed 's/.\+{"code":"\([0-9]\+\)".\+/\1/')
-    # 输出记录IP
-    if [ "$recordCD" == "1" ]; then
-        echo $recordRS | sed 's/.\+,"value":"\([0-9\.]\+\)".\+/\1/'
+    recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
+    
+    # Update IP
+    myIP=$(arIpAddress)
+    recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
+    recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+
+    # Output IP
+    if [ "$recordCD" = "1" ]; then
+        echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/'
         return 1
     fi
-    # 输出错误信息
-    echo $recordRS | sed 's/.\+,"message":"\([^"]\+\)".\+/\1/'
+    # Echo error message
+    echo $recordRS | sed 's/.*,"message":"\([^"]*\)".*/\1/'
 }
 
-# 动态检查更新
-# 参数: 主域名 子域名
+# DDNS Check
+# Arg: Main Sub
 arDdnsCheck() {
     local postRS
-    local hostIP=$(arIpAdress)
+    local hostIP=$(arIpAddress)
     local lastIP=$(arNslookup "${2}.${1}")
     echo "hostIP: ${hostIP}"
     echo "lastIP: ${lastIP}"
@@ -81,9 +123,9 @@ arDdnsCheck() {
     return 1
 }
 
-###################################################
-# 检查更新域名
-
-arDdnsCheck "anrip.com" "lab"
-arDdnsCheck "anrip.net" "dev"
-
+# DDNS
+echo ${#domains[@]}
+for index in ${!domains[@]}; do
+    echo "${domains[index]} ${subdomains[index]}"
+    arDdnsCheck "${domains[index]}" "${subdomains[index]}"
+done

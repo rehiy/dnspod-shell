@@ -1,0 +1,5 @@
+arMail="test@gmail.com"
+arPass="test"
+
+declare -a domains=("test.net")
+declare -a subdomains=("abc")
