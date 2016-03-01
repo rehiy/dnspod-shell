@@ -23,7 +23,7 @@ case $(uname) in
     echo "Windows"
     exit 100
     ;;
-  'Darwin') 
+  'Darwin')
     echo "Mac"
     arIpAddress() {
         ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'
@@ -33,7 +33,7 @@ case $(uname) in
     echo 'Solaris'
     exit 100
     ;;
-  'AIX') 
+  'AIX')
     echo 'AIX'
     exit 100
     ;;
@@ -54,11 +54,6 @@ arPass=""
 # Load config
 
 source $DIR/dns.conf
-
-# Port IP
-arIpAddress() {
-    ipconfig getifaddr en6
-}
 
 # Get Domain IP
 # arg: domain
