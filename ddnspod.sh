@@ -110,7 +110,8 @@ arPass=""
 # Get Domain IP
 # arg: domain
 arNslookup() {
-    wget --quiet --output-document=- $inter$1
+    #wget --quiet --output-document=- $inter$1
+    echo ""
 }
 
 # Get data
