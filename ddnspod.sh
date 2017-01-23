@@ -21,9 +21,13 @@ case $(uname) in
 	#         extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 )
         # fi
         # echo $extip
+
+	if [ "x${WanIp}" = "x" ]; then
+		WanIp=`curl -s -d "ip=myip" http://ip.taobao.com/service/getIpInfo2.php  |  sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+	fi
 	
 	if [ "x${WanIp}" = "x" ]; then
-		WanIp=`curl http://city.ip138.com/ip2city.asp | grep center | sed 's/.*\[\([0-9\.]*\)\].*/\1/g' `
+		WanIp=`curl -s http://city.ip138.com/ip2city.asp | grep center | sed 's/.*\[\([0-9\.]*\)\].*/\1/g' `
 	fi
 	echo $WanIp
     }
@@ -204,3 +208,9 @@ arDdnsCheck() {
 
 date
 . $DIR/dns.conf
+
+echo ""
+echo ""
+echo ""
+echo "+++++++++++++++++++++++++++"
+
