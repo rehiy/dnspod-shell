@@ -109,9 +109,30 @@ arPass=""
 
 # Get Domain IP
 # arg: domain
-arNslookup() {
-    #wget --quiet --output-document=- $inter$1
-    echo ""
+arDdnsInfo() {
+    local domainID recordID recordIP
+    # Get domain ID
+    domainID=$(arApiPost "Domain.Info" "domain=${1}")
+    domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
+    
+    # Get Record ID
+    recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
+    recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
+    
+    # Last IP
+    recordIP=$(arApiPost "Record.Info" "domain_id=${domainID}&record_id=${recordID}")
+    recordIP=$(echo $recordIP | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
+
+    # Output IP
+    case "$recordIP" in 
+      [1-9][0-9]*)
+        echo $recordIP
+        return 1
+        ;;
+      *)
+        echo "Get Record Info Failed!"
+        ;;
+    esac
 }
 
 # Get data
@@ -157,9 +178,10 @@ arDdnsUpdate() {
 # Arg: Main Sub
 arDdnsCheck() {
     local postRS
+    local lastIP
     local hostIP=$(arIpAddress)
-    local lastIP=$(arNslookup "${2}.${1}")
     echo "hostIP: ${hostIP}"
+    lastIP=$(arDdnsInfo "$1 $2")
     echo "lastIP: ${lastIP}"
     if [ "$lastIP" != "$hostIP" ]; then
         postRS=$(arDdnsUpdate $1 $2)
@@ -168,6 +190,7 @@ arDdnsCheck() {
             return 0
         fi
     fi
+    echo "Last IP is the same as current IP!"
     return 1
 }
 
