@@ -169,10 +169,11 @@ arDdnsUpdate() {
     # Output IP
     if [ "$recordCD" = "1" ]; then
         echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/'
-        return 1
+        return 0
     fi
     # Echo error message
     echo $recordRS | sed 's/.*,"message":"\([^"]*\)".*/\1/'
+    return 1
 }
 
 # DDNS Check
@@ -188,8 +189,8 @@ arDdnsCheck() {
         echo "lastIP: ${lastIP}"
         if [ "$lastIP" != "$hostIP" ]; then
             postRS=$(arDdnsUpdate $1 $2)
-            echo "postRS: ${postRS}"
-            if [ $? -ne 1 ]; then
+            if [ $? -eq 0 ]; then
+                echo "postRS: ${postRS}"
                 return 0
             fi
         fi
