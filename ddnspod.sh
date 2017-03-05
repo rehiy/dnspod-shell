@@ -127,10 +127,11 @@ arDdnsInfo() {
     case "$recordIP" in 
       [1-9][0-9]*)
         echo $recordIP
-        return 1
+        return 0
         ;;
       *)
         echo "Get Record Info Failed!"
+        return 1
         ;;
     esac
 }
@@ -180,17 +181,22 @@ arDdnsCheck() {
     local postRS
     local lastIP
     local hostIP=$(arIpAddress)
+    echo "Updating Domain: ${2}.${1}"
     echo "hostIP: ${hostIP}"
     lastIP=$(arDdnsInfo "$1 $2")
-    echo "lastIP: ${lastIP}"
-    if [ "$lastIP" != "$hostIP" ]; then
-        postRS=$(arDdnsUpdate $1 $2)
-        echo "postRS: ${postRS}"
-        if [ $? -ne 1 ]; then
-            return 0
+    if [ $? -eq 0 ]; then
+        echo "lastIP: ${lastIP}"
+        if [ "$lastIP" != "$hostIP" ]; then
+            postRS=$(arDdnsUpdate $1 $2)
+            echo "postRS: ${postRS}"
+            if [ $? -ne 1 ]; then
+                return 0
+            fi
         fi
+        echo "Last IP is the same as current IP!"
+        return 1
     fi
-    echo "Last IP is the same as current IP!"
+    echo ${lastIP}
     return 1
 }
 
