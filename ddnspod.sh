@@ -127,10 +127,11 @@ arDdnsInfo() {
     case "$recordIP" in 
       [1-9][0-9]*)
         echo $recordIP
-        return 1
+        return 0
         ;;
       *)
         echo "Get Record Info Failed!"
+        return 1
         ;;
     esac
 }
@@ -151,7 +152,7 @@ arApiPost() {
 # Update
 # arg: main domain  sub domain
 arDdnsUpdate() {
-    local domainID recordID recordRS recordCD myIP
+    local domainID recordID recordRS recordCD recordIP myIP
     # Get domain ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
     domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
@@ -164,14 +165,21 @@ arDdnsUpdate() {
     myIP=$(arIpAddress)
     recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+    recordIP=$(echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
 
     # Output IP
-    if [ "$recordCD" = "1" ]; then
-        echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/'
+    if [ "$recordIP" = "$myIP" ]; then
+        if [ "$recordCD" = "1" ]; then
+            echo $recordIP
+            return 0
+        fi
+        # Echo error message
+        echo $recordRS | sed 's/.*,"message":"\([^"]*\)".*/\1/'
+        return 1
+    else
+        echo "Update Failed! Please check your network."
         return 1
     fi
-    # Echo error message
-    echo $recordRS | sed 's/.*,"message":"\([^"]*\)".*/\1/'
 }
 
 # DDNS Check
@@ -180,17 +188,25 @@ arDdnsCheck() {
     local postRS
     local lastIP
     local hostIP=$(arIpAddress)
+    echo "Updating Domain: ${2}.${1}"
     echo "hostIP: ${hostIP}"
     lastIP=$(arDdnsInfo "$1 $2")
-    echo "lastIP: ${lastIP}"
-    if [ "$lastIP" != "$hostIP" ]; then
-        postRS=$(arDdnsUpdate $1 $2)
-        echo "postRS: ${postRS}"
-        if [ $? -ne 1 ]; then
-            return 0
+    if [ $? -eq 0 ]; then
+        echo "lastIP: ${lastIP}"
+        if [ "$lastIP" != "$hostIP" ]; then
+            postRS=$(arDdnsUpdate $1 $2)
+            if [ $? -eq 0 ]; then
+                echo "postRS: ${postRS}"
+                return 0
+            else
+                echo ${postRS}
+                return 1
+            fi
         fi
+        echo "Last IP is the same as current IP!"
+        return 1
     fi
-    echo "Last IP is the same as current IP!"
+    echo ${lastIP}
     return 1
 }
 
