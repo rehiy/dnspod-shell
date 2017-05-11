@@ -11,14 +11,6 @@
 case $(uname) in
   'Linux')
     echo "Linux"
-    arIpAddress() {
-        local extip
-        extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev '(^127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.1[6-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.2[0-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.3[0-1]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)')
-        if [ "x${extip}" = "x" ]; then
-	        extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 )
-        fi
-        echo $extip
-    }
     ;;
   'FreeBSD')
     echo 'FreeBSD'
@@ -30,9 +22,6 @@ case $(uname) in
     ;;
   'Darwin')
     echo "Mac"
-    arIpAddress() {
-        ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'
-    }
     ;;
   'SunOS')
     echo 'Solaris'
@@ -44,6 +33,18 @@ case $(uname) in
     ;;
   *) ;;
 esac
+
+#Get IpAddress
+arIpAddress(){
+  if [ "x${WanIp}" = "x" ]; then
+    WanIp=`curl -s -d "ip=myip" http://ip.taobao.com/service/getIpInfo2.php  |  sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+  fi
+  
+  if [ "x${WanIp}" = "x" ]; then
+    WanIp=`curl -s http://city.ip138.com/ip2city.asp | grep center | sed 's/.*\[\([0-9\.]*\)\].*/\1/g' `
+  fi
+echo $WanIp
+}
 
 # Get script dir
 # See: http://stackoverflow.com/a/29835459/4449544
@@ -103,10 +104,6 @@ arToken=""
 arMail=""
 arPass=""
 
-# Load config
-
-#. $DIR/dns.conf
-
 # Get Domain IP
 # arg: domain
 arDdnsInfo() {
@@ -146,7 +143,7 @@ arApiPost() {
     else
         local param="login_token=${arToken}&format=json&${2}"
     fi
-    wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
+    curl -s -A $agent -d $param $inter
 }
 
 # Update
