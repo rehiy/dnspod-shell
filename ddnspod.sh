@@ -152,7 +152,8 @@ arApiPost() {
     else
         local param="login_token=${arToken}&format=json&${2}"
     fi
-    wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
+    #wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
+    curl -X POST $inter -d $param -s
 }
 
 # Update
