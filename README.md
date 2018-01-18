@@ -20,13 +20,13 @@ arToken="12345,7676f344eaeaea9074c123451234512d"
 
 # 每行一个域名
 arDdnsCheck "test.org" "subdomain" "ip_source" "source_args"
-```
 
 # ip_source(IP源):
 # arIpSource_Auto : 自动获取IP 无参数
 #     例: arDdnsCheck "test.org" "subdomain" "arIpSource_Auto"
 # arIpSource_OpenWrtIF_IPv4 : openwrt下获取接口的IPv4地址 参数(source_args): 接口名称 如: pppoe-wan
 #     例: arDdnsCheck "test.org" "subdomain" "arIpSource_OpenWrtIF_IPv4" "pppoe-wan"
+```
 
 # 最近更新
 
