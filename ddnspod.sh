@@ -11,7 +11,7 @@
 case $(uname) in
   'Linux')
     echo "Linux"
-    arIpAddress() {
+    arIpSource_Auto() {
         local extip
         extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev '(^127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.1[6-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.2[0-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.3[0-1]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)')
         if [ "x${extip}" = "x" ]; then
@@ -30,7 +30,7 @@ case $(uname) in
     ;;
   'Darwin')
     echo "Mac"
-    arIpAddress() {
+    arIpSource_Auto() {
         ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'
     }
     ;;
@@ -71,7 +71,7 @@ arDdnsInfo() {
 
     # Output IP
     case "$recordIP" in 
-      [1-9][0-9]*)
+      [1-9]*)
         echo $recordIP
         return 0
         ;;
@@ -96,7 +96,7 @@ arApiPost() {
 }
 
 # Update
-# arg: main domain  sub domain
+# arg: main_domain  sub_domain  hostIP
 arDdnsUpdate() {
     local domainID recordID recordRS recordCD recordIP myIP
     # Get domain ID
@@ -108,7 +108,7 @@ arDdnsUpdate() {
     recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
     
     # Update IP
-    myIP=$(arIpAddress)
+    myIP=$3
     recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
     recordIP=$(echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
@@ -129,18 +129,23 @@ arDdnsUpdate() {
 }
 
 # DDNS Check
-# Arg: Main Sub
+# Arg: Main  Sub  IP_Source  Source_Args
 arDdnsCheck() {
     local postRS
     local lastIP
-    local hostIP=$(arIpAddress)
+    # get ip from function: $IP_Source $Source_Args
+    local hostIP=$($3 $4)
+    [ -z $hostIP ] && { # null check
+        echo "Error: get local ip failed: ip: $hostIP"
+	return 0
+    }
     echo "Updating Domain: ${2}.${1}"
     echo "hostIP: ${hostIP}"
     lastIP=$(arDdnsInfo $1 $2)
     if [ $? -eq 0 ]; then
         echo "lastIP: ${lastIP}"
         if [ "$lastIP" != "$hostIP" ]; then
-            postRS=$(arDdnsUpdate $1 $2)
+            postRS=$(arDdnsUpdate $1 $2 $hostIP)
             if [ $? -eq 0 ]; then
                 echo "postRS: ${postRS}"
                 return 0
@@ -154,6 +159,16 @@ arDdnsCheck() {
     fi
     echo ${lastIP}
     return 1
+}
+
+# ipv4 source from openwrt interface e.g. pppoe-wan
+# Arg: interface_name
+arIpSource_OpenWrtIF_IPv4()
+{
+    local dev_if=$1
+    local localip
+    localip=$(ifconfig $dev_if|grep 'inet addr'|awk '{print $2}'|awk -F ':' '{print $2}')
+    echo $localip
 }
 
 # DDNS
