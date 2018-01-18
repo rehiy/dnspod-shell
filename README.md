@@ -4,9 +4,9 @@
 
 # Usage
 
-复制`dns.conf.example`到同一目录下的`dns.conf`并根据你的配置修改即可。
+复制`dns.conf.example`到任意目录下的`dns.conf`并根据你的配置修改即可。
 
-执行时直接运行`ddnspod.sh`，支持cron任务。
+执行时直接运行`ddnspod.sh [配置文件路径]`，支持cron任务。
 
 配置文件格式：
 ```
