@@ -23,6 +23,10 @@ case $(uname) in
         # echo $extip
 
 	if [ "x${WanIp}" = "x" ]; then
+		WanIp=`curl -s https://ipinfo.io | grep ip |sed 's/.*ip": "\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+	fi
+
+	if [ "x${WanIp}" = "x" ]; then
 		WanIp=`curl -s -d "ip=myip" http://ip.taobao.com/service/getIpInfo2.php  |  sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
 	fi
 	
