@@ -7,17 +7,51 @@
 # Edited by ProfFan
 #################################################
 
+#################################################
+# 2018-11-06 
+# support  LAN / WAN / IPV6 resolution
+# Daleshen mailto:gf@gfshen.cn
+#################################################
+
+#select IP type
+IPtype=1  #1.WAN 2.LAN 3.IPv6
 # OS Detection
 case $(uname) in
   'Linux')
     echo "Linux"
     arIpAddress() {
-        local extip
-        extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev '(^127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.1[6-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.2[0-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.3[0-1]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)')
-        if [ "x${extip}" = "x" ]; then
-	        extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 )
-        fi
-        echo $extip
+
+	case $IPtype in
+		'1')
+				
+		curltest=`which curl`
+		if [ -z "$curltest" ] || [ ! -s "`which curl`" ] 
+		then
+			#wget --no-check-certificate --quiet --output-document=- "https://www.ipip.net" | grep "IP地址" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+			wget --no-check-certificate --quiet --output-document=- "http://members.3322.org/dyndns/getip" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+			#wget --no-check-certificate --quiet --output-document=- "ip.6655.com/ip.aspx" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+			#wget --no-check-certificate --quiet --output-document=- "ip.3322.net" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+		else
+		curl -k -s "http://members.3322.org/dyndns/getip" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+		#curl -L -k -s "https://www.ipip.net" | grep "IP地址" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+
+		#curl -k -s ip.6655.com/ip.aspx | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
+		#curl -k -s ip.3322.net | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1		
+		fi
+		;;
+ 
+		'2')
+		
+		ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 
+		;;
+ 
+		'3')
+		
+		# 因为一般ipv6没有nat ipv6的获得可以本机获得
+		ifconfig $(nvram get wan0_ifname_t) | awk '/Global/{print $3}' | awk -F/ '{print $1}'
+		;;
+ 	esac
+ 
     }
     ;;
   'FreeBSD')
@@ -44,6 +78,8 @@ case $(uname) in
     ;;
   *) ;;
 esac
+
+echo $(arIpAddress)
 
 # Get script dir
 # See: http://stackoverflow.com/a/29835459/4449544
