@@ -39,8 +39,11 @@ arDdnsCheck "test.org" "subdomain"
 - 进一步POSIX化，支持Mac和大部分Linux发行版
 - 更改配置文件格式
 
+2018-11-07
+- 支持选择IP地址类型，包括外网/内网/IPv6
+
 # Credit
 
 Original: anrip
+Forked form anrip/ArDNSPod
 
-This version maintained by ProfFan
