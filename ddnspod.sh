@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #################################################
 # AnripDdns v5.08
@@ -32,12 +32,8 @@ function getPublicIp() {
             WanIp=`curl -s 'https://api.myip.com' | grep ip |sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
             echo $WanIp
             ;;
-        6)
-            WanIp=`curl -s 'https://ifconfig.co'`
-            echo $WanIp
-            ;;
         *)
-            WanIp=`curl -s 'http://api.ipstack.com/114.253.244.139?access_key=62510fcf15eec61119dc63b73296dd27&format=0&fields=ip' | grep ip |sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+            WanIp=`curl -s 'https://ifconfig.co'`
             echo $WanIp
             ;;
     esac
@@ -56,7 +52,7 @@ case $(uname) in
         # echo $extip
 
 	if [ "x${WanIp}" = "x" ]; then
-		Index=$(( $RANDOM % 7))
+		Index=$(( $RANDOM % 6))
 		WanIp=$(getPublicIp $Index)
 	fi
 
