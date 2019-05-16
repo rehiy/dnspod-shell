@@ -23,6 +23,15 @@ arDdnsCheck "test.org" "subdomain"
 ```
 
 # 最近更新
+2019/05/16
+- 增加public Ip获取方式，包括
+  - [api.ipify.org](https://api.ipify.org)
+  - [ipapi.co](https://ipapi.co/)
+  - [seeip.ort](https://ip4.seeip.org)
+  - [api.myip.com](https://api.myip.com)
+  - [ifconfig.co](https://ifconfig.co)
+- 支持随机选择public IP获取方式，如果失效会自动重试随机选择
+- 为支持随机选择，切换环境，从/bin/sh 到 /bin/bash
 
 2015/2/24
 - 增加token鉴权方式 (by wbchn)
