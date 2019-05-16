@@ -10,6 +10,39 @@
 WanIp=""
 LastIpFile=last.ip
 
+function getPublicIp() {
+    case $1 in
+        1)
+            WanIp=`curl -s 'https://api.ipify.org?format=json' | grep ip |sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+            echo $WanIp
+            ;;
+        2)
+            WanIp=`curl -s 'https://ipapi.co/ip/'`
+            echo $WanIp
+            ;;
+        3)
+            WanIp=`curl -s 'http://ip-api.com/json/?fields=query' | grep query |sed 's/.*query":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+            echo $WanIp
+            ;;
+        4)
+            WanIp=`curl -s 'https://ip4.seeip.org'`
+            echo $WanIp
+            ;;
+        5)
+            WanIp=`curl -s 'https://api.myip.com' | grep ip |sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+            echo $WanIp
+            ;;
+        6)
+            WanIp=`curl -s 'https://ifconfig.co'`
+            echo $WanIp
+            ;;
+        *)
+            WanIp=`curl -s 'http://api.ipstack.com/114.253.244.139?access_key=62510fcf15eec61119dc63b73296dd27&format=0&fields=ip' | grep ip |sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+            echo $WanIp
+            ;;
+    esac
+}
+
 # OS Detection
 case $(uname) in
   'Linux')
@@ -23,19 +56,23 @@ case $(uname) in
         # echo $extip
 
 	if [ "x${WanIp}" = "x" ]; then
-		WanIp=`curl -s 'https://api.ipify.org?format=json' | grep ip |sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+		Index=$(( $RANDOM % 7))
+		WanIp=$(getPublicIp $Index)
 	fi
 
 	if [ "x${WanIp}" = "x" ]; then
-		WanIp=`curl -s https://ipinfo.io | grep ip |sed 's/.*ip": "\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+		Index=$(( $RANDOM % 6))
+		WanIp=$(getPublicIp $Index)
 	fi
 
 	if [ "x${WanIp}" = "x" ]; then
-		WanIp=`curl -s -d "ip=myip" http://ip.taobao.com/service/getIpInfo2.php  |  sed 's/.*ip":"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)".*/\1/g'`
+		Index=$(( $RANDOM % 6))
+		WanIp=$(getPublicIp $Index)
 	fi
 	
 	if [ "x${WanIp}" = "x" ]; then
-		WanIp=`curl -s http://city.ip138.com/ip2city.asp | grep center | sed 's/.*\[\([0-9\.]*\)\].*/\1/g' `
+		Index=$(( $RANDOM % 6))
+		WanIp=$(getPublicIp $Index)
 	fi
 	echo $WanIp
     }
