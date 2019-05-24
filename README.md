@@ -4,9 +4,9 @@
 
 # Usage
 
-首先要在dnspod网页上新建解析记录，然后获得api token。
-复制`dns.conf.example`到同一目录下的`dns.conf`并根据你的配置修。
-在 `ddnspod.sh` 文件开头修改要解析的ip类型(ipv4/ipv6)
+首先要在dnspod网页上新建解析记录，然后获得api token。  
+复制`dns.conf.example`到同一目录下的`dns.conf`并根据你的配置修。  
+在 `ddnspod.sh` 文件开头修改要解析的ip类型(ipv4/ipv6)    
 
 执行时直接运行`ddnspod.sh`，支持cron任务。
 
