@@ -151,7 +151,7 @@ arDdnsCheck() {
 # See: http://stackoverflow.com/a/29835459/4449544
 # Execute the function in a *subshell* to localize variables and the effect of `cd`.
 
-rreadlink() (
+rreadlink() {
 
   target=$1 fname= targetDir= CDPATH=
 
@@ -174,6 +174,7 @@ rreadlink() (
       fi
       break # Ultimate target reached.
   done
+
   targetDir=$(command pwd -P) # Get canonical dir. path
   # Output the ultimate target's canonical path.
   # Note that we manually resolve paths ending in /. and /.. to make sure we have a normalized path.
@@ -186,7 +187,8 @@ rreadlink() (
   else
     command printf '%s\n' "${targetDir%/}/$fname"
   fi
-)
+
+}
 
 # Load config file
 
