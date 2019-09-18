@@ -24,7 +24,7 @@ case $(uname) in
     arIpAddress() {
         local extip
         extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev '(^127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.1[6-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.2[0-9]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^172\.3[0-1]{1}[0-9]{0,1}\.[0-9]{1,3}\.[0-9]{1,3}$)|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)')
-        if [ "x${extip}" = "x" ]; then
+        if [ -z "$extip" ]; then
 	        extip=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 )
         fi
         echo $extip
@@ -45,17 +45,19 @@ esac
 # Arg: domain
 
 arDdnsInfo() {
+
     local domainID recordID recordIP
+
     # Get domain ID
-    domainID=$(arApiPost "Domain.Info" "domain=${1}")
+    domainID=$(arApiPost "Domain.Info" "domain=$1")
     domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
 
     # Get Record ID
-    recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
+    recordID=$(arApiPost "Record.List" "domain_id=$domainID&sub_domain=$2")
     recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
 
     # Last IP
-    recordIP=$(arApiPost "Record.Info" "domain_id=${domainID}&record_id=${recordID}")
+    recordIP=$(arApiPost "Record.Info" "domain_id=$domainID&record_id=$recordID")
     recordIP=$(echo $recordIP | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
 
     # Output IP
@@ -75,14 +77,18 @@ arDdnsInfo() {
 # Arg: type data
 
 arApiPost() {
+
     local agent="AnripDdns/5.07(mail@anrip.com)"
     local inter="https://dnsapi.cn/${1:?'Info.Version'}"
-    if [ "x${arToken}" = "x" ]; then # undefine token
-        local param="login_email=${arMail}&login_password=${arPass}&format=json&${2}"
+
+    if [ -n "$arToken" ]; then
+        local param="login_token=$arToken&format=json&$2"
     else
-        local param="login_token=${arToken}&format=json&${2}"
+        local param="login_email=$arMail&login_password=$arPass&format=json&$2"
     fi
+
     wget --quiet --no-check-certificate --output-document=- --user-agent=$agent --post-data $param $inter
+
 }
 
 # Update
@@ -91,16 +97,16 @@ arApiPost() {
 arDdnsUpdate() {
     local domainID recordID recordRS recordCD recordIP myIP
     # Get domain ID
-    domainID=$(arApiPost "Domain.Info" "domain=${1}")
+    domainID=$(arApiPost "Domain.Info" "domain=$1")
     domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
 
     # Get Record ID
-    recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")
+    recordID=$(arApiPost "Record.List" "domain_id=$domainID&sub_domain=$2")
     recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
 
     # Update IP
     myIP=$(arIpAddress)
-    recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=${2}&record_type=A&value=${myIP}&record_line=默认")
+    recordRS=$(arApiPost "Record.Ddns" "domain_id=$domainID&record_id=$recordID&sub_domain=$2&record_type=A&value=$myIP&record_line=默认")
     recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
     recordIP=$(echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
 
@@ -125,25 +131,25 @@ arDdnsCheck() {
     local postRS
     local lastIP
     local hostIP=$(arIpAddress)
-    echo "Updating Domain: ${2}.${1}"
-    echo "hostIP: ${hostIP}"
+    echo "Updating Domain: $2.$1"
+    echo "hostIP: $hostIP"
     lastIP=$(arDdnsInfo $1 $2)
     if [ $? -eq 0 ]; then
-        echo "lastIP: ${lastIP}"
+        echo "lastIP: $lastIP"
         if [ "$lastIP" != "$hostIP" ]; then
             postRS=$(arDdnsUpdate $1 $2)
             if [ $? -eq 0 ]; then
-                echo "postRS: ${postRS}"
+                echo "postRS: $postRS"
                 return 0
             else
-                echo ${postRS}
+                echo "$postRS"
                 return 1
             fi
         fi
         echo "Last IP is the same as current IP!"
         return 1
     fi
-    echo ${lastIP}
+    echo "$lastIP"
     return 1
 }
 
