@@ -133,11 +133,11 @@ arDdnsCheck() {
     local hostIP=$(arIpAddress)
     echo "Updating Domain: $2.$1"
     echo "hostIP: $hostIP"
-    lastIP=$(arDdnsInfo $1 $2)
+    lastIP=$(arDdnsInfo "$1" "$2")
     if [ $? -eq 0 ]; then
         echo "lastIP: $lastIP"
         if [ "$lastIP" != "$hostIP" ]; then
-            postRS=$(arDdnsUpdate $1 $2)
+            postRS=$(arDdnsUpdate "$1" "$2")
             if [ $? -eq 0 ]; then
                 echo "postRS: $postRS"
                 return 0
