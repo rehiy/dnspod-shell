@@ -4,6 +4,8 @@
 
 # Usage
 
+[详细介绍使用方法的博文](https://blog.csdn.net/Imkiimki/article/details/83794355)（老鸟请略过）
+
 首先要在dnspod网页上新建解析记录，然后获得api token。  
 复制`dns.conf.example`到同一目录下的`dns.conf`并根据你的配置修。  
 在 `ddnspod.sh` 文件开头修改要解析的ip类型(ipv4/ipv6)    
