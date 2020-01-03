@@ -56,6 +56,9 @@ arDdnsCheck "test.org" "subdomain"
 - 支持IPV6(如你所料，之前所说的支持是假的)
 - 根据网站的更新，api调用使用TLS v1.2，解决了之前调用失败的问题（感谢@lth410 指出）。
 
+2020-01-03
+- 修复了12月31日由于 dnspod API 改动导致的失效。
+
 # Credit
 
 Original: anrip
