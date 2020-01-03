@@ -167,12 +167,12 @@ arDdnsInfo() {
     local domainID recordID recordIP
     # Get domain ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
-    domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
+    
+    domainID=$(echo $domainID | sed 's/.*,"id":"\([0-9]*\)".*/\1/')
     
     # Get Record ID
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}&record_type=${record_type}")
     recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
-   
     # Last IP
     recordIP=$(arApiPost "Record.Info" "domain_id=${domainID}&record_id=${recordID}&record_type=${record_type}")
     recordIP=$(echo $recordIP | sed 's/.*,"value":"\([0-9a-z\.:]*\)".*/\1/')
@@ -213,8 +213,8 @@ arDdnsUpdate() {
   
     # Get domain ID
     domainID=$(arApiPost "Domain.Info" "domain=${1}")
-    domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
-    
+    domainID=$(echo $domainID | sed 's/.*,"id":"\([0-9]*\)".*/\1/')
+    #echo $domainID
     # Get Record ID
     recordID=$(arApiPost "Record.List" "domain_id=${domainID}&record_type=${record_type}&sub_domain=${2}")
     recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')
@@ -224,7 +224,7 @@ arDdnsUpdate() {
     recordRS=$(arApiPost "Record.Modify" "domain_id=${domainID}&sub_domain=${2}&record_type=${record_type}&record_id=${recordID}&record_line=默认&value=${myIP}")
     recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
     recordIP=$(echo $recordRS | sed 's/.*,"value":"\([0-9a-z\.:]*\)".*/\1/')
-    #echo $recordIP
+    
     # Output IP
     if [ "$recordIP" = "$myIP" ]; then
         if [ "$recordCD" = "1" ]; then
@@ -253,15 +253,16 @@ arDdnsCheck() {
         echo "lastIP: ${lastIP}"
         if [ "$lastIP" != "$hostIP" ]; then
             postRS=$(arDdnsUpdate $1 $2)
+             
             if [ $? -eq 0 ]; then
-                echo "postRS: ${postRS}"
+                echo "update to ${postRS} successed."
                 return 0
             else
                 echo ${postRS}
                 return 1
             fi
         fi
-        echo "Last IP is the same as current IP!"
+        echo "Last IP is the same as current, no action."
         return 1
     fi
     echo ${lastIP}
