@@ -13,6 +13,14 @@
 #
 #############################################################
 
+# IPtype
+if [ $IPtype = '2' ]; then
+    record_type='AAAA'
+else
+    record_type='A'
+fi
+echo Type: $record_type
+
 # TokenID,Token
 
 arToken=""
@@ -33,7 +41,16 @@ arWanIp() {
 
     case $(uname) in
         'Linux')
-            hostIp=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+
+            case $IPtype in
+            '1')
+                hostIp=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+            ;;
+        
+            '2')
+                hostIp=$(ip -o -6 addr list | grep -E '\s(global)' | awk '{print $4}' | cut -d/ -f1)
+            ;;
+        esac
         ;;
         'Darwin')
             hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
@@ -55,10 +72,10 @@ arWanIp() {
 # Dnspod Bridge
 # Arg: type data
 
+
 arDdnsApi() {
 
     local agent="AnripDdns/6.0.0(mail@anrip.com)"
-
     local apiurl="https://dnsapi.cn/${1:?'Info.Version'}"
     local params="login_token=$arToken&format=json&$2"
 
@@ -84,16 +101,16 @@ arDdnsInfo() {
     domainId=$(echo $domainId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Get Record ID
-    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2")
+recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=$record_type")
     recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Last IP
-    recordIp=$(arDdnsApi "Record.Info" "domain_id=$domainId&record_id=$recordId")
-    recordIp=$(echo $recordIp | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
+    recordIp=$(arDdnsApi "Record.Info" "domain_id=$domainId&record_id=$recordId&record_type=$record_type")
+    recordIp=$(echo $recordIp | sed 's/.*,"value":"\([0-9a-f\.:]*\)".*/\1/')
 
     # Output IP
     case "$recordIp" in
-        [1-9]*)
+        [1-9a-f]*)
             echo $recordIp
             return 0
         ;;
@@ -123,12 +140,13 @@ arDdnsUpdate() {
     domainId=$(echo $domainId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Get Record ID
-    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2")
+    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=$record_type")
     recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Update IP
-    recordRs=$(arDdnsApi "Record.Ddns" "domain_id=$domainId&record_id=$recordId&sub_domain=$2&record_type=A&value=$hostIp&record_line=默认")
-    recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
+    #recordRs=$(arDdnsApi "Record.Ddns" "domain_id=$domainId&record_id=$recordId&sub_domain=$2&record_type=A&value=$hostIp&record_line=默认")
+    recordRs=$(arDdnsApi "Record.Modify" "domain_id=$domainId&record_id=$recordId&sub_domain=$2&record_type=$record_type&value=$hostIp&record_line=默认")
+    recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-f\.:]*\)".*/\1/')
     recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
 
     # Output IP
@@ -155,10 +173,8 @@ arDdnsCheck() {
     local lastIP
 
     local hostIp=$(arWanIp)
-
     echo "Updating Domain: $2.$1"
     echo "Host Ip: $hostIp"
-
     lastIP=$(arDdnsInfo "$1" "$2")
     if [ $? -eq 0 ]; then
         echo "lastIP: $lastIP"

@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# Choose IP type : 1.IPv4 2.IPv6
+IPtype="1"
 
 # Import ardnspod functions
 . /your_real_path/ardnspod
