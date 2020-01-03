@@ -41,17 +41,16 @@ arWanIp() {
 
     case $(uname) in
         'Linux')
-
             case $IPtype in
-            '1')
-                hostIp=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+                '1')
+                    hostIp=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+                ;;
+            
+                '2')
+                    hostIp=$(ip -o -6 addr list | grep -E '\s(global)' | awk '{print $4}' | cut -d/ -f1)
+                ;;
+            esac
             ;;
-        
-            '2')
-                hostIp=$(ip -o -6 addr list | grep -E '\s(global)' | awk '{print $4}' | cut -d/ -f1)
-            ;;
-        esac
-        ;;
         'Darwin')
             hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
@@ -72,10 +71,10 @@ arWanIp() {
 # Dnspod Bridge
 # Arg: type data
 
-
 arDdnsApi() {
 
     local agent="AnripDdns/6.0.0(mail@anrip.com)"
+
     local apiurl="https://dnsapi.cn/${1:?'Info.Version'}"
     local params="login_token=$arToken&format=json&$2"
 
@@ -101,7 +100,7 @@ arDdnsInfo() {
     domainId=$(echo $domainId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Get Record ID
-recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=$record_type")
+    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=$record_type")
     recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Last IP
