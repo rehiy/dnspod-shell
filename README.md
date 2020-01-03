@@ -4,7 +4,7 @@
 
 # 使用方法
 
--   修改`ddnspod.sh`中的`/your_real_path/ardnspod`为真实路径
+-   编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
 
 -   运行`/your_real_path/ddnspod.sh`执行更新，_支持添加为cron任务_
 
