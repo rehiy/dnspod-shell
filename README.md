@@ -4,7 +4,7 @@
 
 # 使用方法
 
--   编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
+-   编辑`ddnspod.sh`，分别修改`IPtype`、`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
 
 -   运行`/your_real_path/ddnspod.sh`执行更新，_支持添加为cron任务_
 
@@ -17,7 +17,7 @@
 2020/1/3
 
 - 添加IPv6的支持
-- 在ddnspod.sh中编辑`IPtype`
+- 在ddnspod.sh中编辑`IPtype`选择需要的IP类型
 
 
 2020/1/1
