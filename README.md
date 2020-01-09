@@ -63,6 +63,9 @@ arDdnsCheck "test.org" "subdomain"
 2020-01-03
 - 修复了12月31日由于 dnspod API 改动导致的失效。
 
+2020-01-09
+- API返回格式又变了，更改正则表达匹配。
+
 # Credit
 
 Original: anrip
