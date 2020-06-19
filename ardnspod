@@ -15,7 +15,7 @@
 
 # TokenID,Token
 
-arToken=""
+export arToken=""
 
 # Get WAN-IP
 
