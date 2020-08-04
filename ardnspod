@@ -84,7 +84,7 @@ arDdnsInfo() {
     domainId=$(echo $domainId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Get Record ID
-    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2")
+    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=A")
     recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     # Last IP
