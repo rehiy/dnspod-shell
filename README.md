@@ -16,7 +16,7 @@
 
 2020/8/5
 
-- 修复 `get the wrong recordID` by @C-Y-X
+- 修复 `get the wrong recordID` @C-Y-X
 
 2020/1/1
 
