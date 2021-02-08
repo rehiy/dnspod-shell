@@ -52,6 +52,32 @@ arWanIp() {
 
 }
 
+# Get WAN IPv6
+
+arWan6Ip() {
+
+    local hostIp
+
+    local lanIps="(^$)|(^::1$)|(^fe[8-9,A-F])"
+
+    case $(uname) in
+        'Linux')
+            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+        ;;
+        'Darwin')
+            hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps")
+        ;;
+    esac
+
+    if [ -z "$hostIp" ]; then
+        echo "arWan6Ip: No IPv6 address found, please check if you have one"
+        return 1
+    fi
+
+    echo $hostIp | tail -n 1
+
+}
+
 # Dnspod Bridge
 # Arg: type data
 
@@ -70,26 +96,48 @@ arDdnsApi() {
 
 }
 
-# Fetch Domain Ip
-# Arg: domain
+# Dnspod Domain ID & Record ID
+# Arg: record-type domain subdomain
 
-arDdnsInfo() {
+arDdnsId() {
 
     local domainId
     local recordId
-    local recordIp
+    local errMsg
 
     # Get domain ID
-    domainId=$(arDdnsApi "Domain.Info" "domain=$1")
+    domainId=$(arDdnsApi "Domain.Info" "domain=$2")
     domainId=$(echo $domainId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
+    if ! [ "$domainId" -gt 0 ] 2>/dev/null ;then
+        errMsg=$(echo $domainId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
+        echo "arDdnsId: $errMsg"
+        return 1
+    fi
+
     # Get Record ID
-    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=A")
+    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$3&record_type=$1")
     recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
+    if ! [ "$recordId" -gt 0 ] 2>/dev/null ;then
+        errMsg=$(echo $recordId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
+        echo "arDdnsId: $errMsg"
+        return 1
+    fi
+
+    echo $domainId $recordId
+}
+
+# Fetch Record Ip
+# Arg: domain-id record-id
+
+arDdnsRecordIp() {
+
+    local recordIp
+
     # Last IP
-    recordIp=$(arDdnsApi "Record.Info" "domain_id=$domainId&record_id=$recordId")
-    recordIp=$(echo $recordIp | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
+    recordIp=$(arDdnsApi "Record.Info" "domain_id=$1&record_id=$2")
+    recordIp=$(echo $recordIp | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
     # Output IP
     case "$recordIp" in
@@ -98,53 +146,50 @@ arDdnsInfo() {
             return 0
         ;;
         *)
-            echo "Get Record Info Failed!"
+            errMsg=$(echo $recordIp | sed 's/.*"message":"\([^\"]*\)".*/\1/')
+            echo "arDdnsRecordIp: $errMsg"
             return 1
         ;;
     esac
 
 }
 
-# Update Domain Ip
-# Arg: main-domain sub-domain
+# Update Record Ip
+# Arg: domain-id record-id sub-domain update-ip
 
 arDdnsUpdate() {
 
-    local domainId
-    local recordId
+    local recordType
     local recordRs
     local recordIp
     local recordCd
+    local errMsg
 
-    local hostIp=$(arWanIp)
-
-    # Get domain ID
-    domainId=$(arDdnsApi "Domain.Info" "domain=$1")
-    domainId=$(echo $domainId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
-
-    # Get Record ID
-    recordId=$(arDdnsApi "Record.List" "domain_id=$domainId&sub_domain=$2&record_type=A")
-    recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
-
+    if [[ "$4" =~ ^[0-9a-zA-Z\:]+$ ]]; then
+        recordType="AAAA"
+    elif [[ "$4" =~ ^[0-9\.]+$ ]]; then
+        recordType="A"
+    else
+        echo "arDdnsRecordUpdate: bad ip address"
+        return 1
+    fi
+    
     # Update IP
-    recordRs=$(arDdnsApi "Record.Ddns" "domain_id=$domainId&record_id=$recordId&sub_domain=$2&record_type=A&value=$hostIp&record_line=%e9%bb%98%e8%ae%a4")
-    recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')
+    recordRs=$(arDdnsApi "Record.Modify" "domain_id=$1&record_id=$2&sub_domain=$3&record_type=$recordType&value=$4&record_line=%e9%bb%98%e8%ae%a4")
+    recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
     recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
 
     # Output IP
-    if [ "$recordIp" = "$hostIp" ]; then
-        if [ "$recordCd" = "1" ]; then
-            echo $recordIp
-            return 0
-        fi
-        # Echo error message
-        echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/'
-        return 1
+    if [ "$recordIp" = "$4" ] && [ "$recordCd" = "1" ]; then
+        echo $recordIp
+        return 0
     else
-        echo "Update Failed! Please check your network."
+        # Echo error message
+        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+        echo "arDdnsRecordUpdate: $errMsg"
         return 1
     fi
-
+    
 }
 
 # DDNS Check
@@ -152,18 +197,36 @@ arDdnsUpdate() {
 arDdnsCheck() {
 
     local postRs
+    local ddnsIds
     local lastIP
+    local hostIp
 
-    local hostIp=$(arWanIp)
+    if [ $# -eq 3 ] && [ $3 -eq 6 ]; then
+        hostIp=$(arWan6Ip)
+        if [ $? -ne 0 ]; then
+            echo "$hostIp"
+            return 1
+        fi
+        ddnsIds=$(arDdnsId "AAAA" "$1" "$2")
+    else
+        hostIp=$(arWanIp)
+        ddnsIds=$(arDdnsId "A" "$1" "$2")
+    fi
+
+    if [ $? -ne 0 ]; then
+        echo "$ddnsIds"
+        return 1
+    fi
 
     echo "Updating Domain: $2.$1"
+    echo "Domain IDs: $ddnsIds"
     echo "Host Ip: $hostIp"
-
-    lastIP=$(arDdnsInfo "$1" "$2")
+    
+    lastIP=$(arDdnsRecordIp $(echo $ddnsIds))
     if [ $? -eq 0 ]; then
         echo "lastIP: $lastIP"
         if [ "$lastIP" != "$hostIp" ]; then
-            postRs=$(arDdnsUpdate "$1" "$2")
+            postRs=$(arDdnsUpdate $(echo $ddnsIds) $2 $hostIp)
             if [ $? -eq 0 ]; then
                 echo "postRs: $postRs"
                 return 0
