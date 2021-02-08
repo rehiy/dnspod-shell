@@ -62,10 +62,10 @@ arWan6Ip() {
 
     case $(uname) in
         'Linux')
-            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps" | tail -n 1)
         ;;
         'Darwin')
-            hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps")
+            hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps" | tail -n 1)
         ;;
     esac
 
@@ -74,7 +74,7 @@ arWan6Ip() {
         return 1
     fi
 
-    echo $hostIp | tail -n 1
+    echo $hostIp
 
 }
 
@@ -165,9 +165,9 @@ arDdnsUpdate() {
     local recordCd
     local errMsg
 
-    if [[ "$4" =~ ^[0-9a-zA-Z\:]+$ ]]; then
+    if [ -n "$(echo "$4" | awk '/^[0-9a-zA-Z:]+$/')" ]; then
         recordType="AAAA"
-    elif [[ "$4" =~ ^[0-9\.]+$ ]]; then
+    elif [ -n "$(echo "$4" | awk '/^[0-9\.]+$/')" ]; then
         recordType="A"
     else
         echo "arDdnsRecordUpdate: bad ip address"
