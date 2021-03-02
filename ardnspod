@@ -236,7 +236,7 @@ arDdnsCheck() {
             fi
         fi
         echo "Last IP is the same as current IP!"
-        return 1
+        return 0
     fi
 
     echo "$lastIP"
