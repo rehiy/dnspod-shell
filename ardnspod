@@ -251,6 +251,10 @@ arDdnsCheck() {
     echo "Updating Record for $2.$1"
     postRs=$(arDdnsUpdate $ddnsIds $2 $hostIp $recordType)
 
+    errCode=$?
     echo "> $postRs"
+    if [ $errCode -ne 0 ]; then
+        return 1
+    fi
 
 }
