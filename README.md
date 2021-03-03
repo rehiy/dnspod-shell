@@ -12,12 +12,12 @@
 
 ```
 Fetching Host Ip
-> Host Ip: 47.240.72.53
+> Host Ip: 11.22.33.55
 > Record Type: A
 Fetching Ids of test.rehi.org
 > Domain Ids: 84982658 766956386
 Checking Record for test.rehi.org
-> Last Ip: 127.0.0.1
+> Last Ip: 11.22.33.77
 Updating Record for test.rehi.org
 > arDdnsUpdate - success
 ```
