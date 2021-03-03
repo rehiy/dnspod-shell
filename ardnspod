@@ -54,7 +54,7 @@ arWanIp4() {
         return 1
     fi
 
-    if [ -n "$(echo $hostIp | grep -Ev '^[0-9\.]+$')" ]; then
+    if [ -z "$(echo $hostIp | grep -E '^[0-9\.]+$')" ]; then
         echo "arWanIp4 - Invalid ip address $hostIp"
         return 1
     fi
@@ -85,7 +85,7 @@ arWanIp6() {
         return 1
     fi
 
-    if [ -n "$(echo $hostIp | grep -Ev '^[0-9a-fA-F:]+$')" ]; then
+    if [ -z "$(echo $hostIp | grep -E '^[0-9a-fA-F:]+$')" ]; then
         echo "arWanIp6 - Invalid ip address"
         return 1
     fi
