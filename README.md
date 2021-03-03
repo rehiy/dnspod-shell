@@ -8,6 +8,10 @@
 
 -   运行`/your_real_path/ddnspod.sh`执行更新，_支持添加为cron任务_
 
+-   运行结果如下图：
+
+![image](https://user-images.githubusercontent.com/8297757/109743179-3cb65980-7c0b-11eb-8ae5-451f173034f1.png)
+
 ### 小提示
 
 -   如需单文件运行，将`ddnspod.sh`中的配置项添加到`ardnspod`底部，直接运行`ardnspod`即可
