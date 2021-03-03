@@ -10,8 +10,8 @@ arToken="12345,7676f344eaeaea9074c123451234512d"
 # Place each domain you want to check as follows
 # you can have multiple arDdnsCheck blocks
 
-# IPv6:
-arDdnsCheck "test.org" "subdomain6" 6
-
 # IPv4:
 arDdnsCheck "test.org" "subdomain"
+
+# IPv6:
+arDdnsCheck "test.org" "subdomain6" 6

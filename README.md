@@ -30,6 +30,7 @@ Updating Record for test.rehi.org
 
 2021/3/3
 
+- 强化获取IP结果检测
 - 优化部分判断逻辑
 - 优化消息输出
 
