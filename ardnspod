@@ -218,6 +218,9 @@ arDdnsCheck() {
     if [ $? -ne 0 ]; then
         echo $hostIp
         return 1
+    else
+        echo "Record Type: $recordType"
+        echo "Host Ip: $hostIp"
     fi
 
     ddnsIds=$(arDdnsIds $recordType $1 $2)
@@ -225,6 +228,8 @@ arDdnsCheck() {
     if [ $? -ne 0 ]; then
         echo $ddnsIds
         return 1
+    else
+        echo "Domain Ids: $ddnsIds"
     fi
 
     echo "Checking Domain: $2.$1"
@@ -233,11 +238,9 @@ arDdnsCheck() {
     if [ $? -ne 0 ]; then
         echo $lastIp
         return 1
+    else
+        echo "Last Ip: $lastIp"
     fi
-
-    echo "Domain Ids: $ddnsIds"
-    echo "Host Ip: $hostIp"
-    echo "Last Ip: $lastIp"
 
     if [ "$lastIp" == "$hostIp" ]; then
         echo "Last Ip is the same as host Ip"
