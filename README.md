@@ -1,20 +1,30 @@
 # ArDNSPod
 
-基于DNSPod用户API实现的纯Shell动态域名客户端，优先适配网卡地址，无法获得合法外网地址则使用外部接口获取IP地址
+基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端，优先适配网卡地址，无法获得合法外网地址则使用外部接口获取 IP 地址
 
 # 使用方法
 
--   编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
+- 编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
 
--   运行`/your_real_path/ddnspod.sh`执行更新，_支持添加为cron任务_
+- 运行`/your_real_path/ddnspod.sh`执行更新，_支持添加为 cron 任务_
 
--   运行结果如下图：
+- 成功运行后，结果如下所示：
 
-![image](https://user-images.githubusercontent.com/8297757/109743179-3cb65980-7c0b-11eb-8ae5-451f173034f1.png)
+```
+Fetching Host Ip
+> Host Ip: 47.240.72.53
+> Record Type: A
+Fetching Ids of test.rehi.org
+> Domain Ids: 84982658 766956386
+Checking Record for test.rehi.org
+> Last Ip: 127.0.0.1
+Updating Record for test.rehi.org
+> arDdnsUpdate - success
+```
 
 ### 小提示
 
--   如需单文件运行，将`ddnspod.sh`中的配置项添加到`ardnspod`底部，直接运行`ardnspod`即可
+- 如需单文件运行，将`ddnspod.sh`中的配置项添加到`ardnspod`底部，直接运行`ardnspod`即可
 
 # 最近更新
 
@@ -25,8 +35,8 @@
 
 2021/2/8
 
-- 添加IPv6支持
-- 优化流程，减少API调用次数
+- 添加 IPv6 支持
+- 优化流程，减少 API 调用次数
 - 完善出错提示
 
 2020/8/5
@@ -35,29 +45,29 @@
 
 2020/1/1
 
--   适配新版API（2019-11-26）
--   当`wget`不存在时，尝试使用`curl`提交
--   由于`readlink`不可靠，更改为手动设置路径
--   当无法从本地网卡获得外网ip时，尝试从外部api获取
+- 适配新版 API（2019-11-26）
+- 当`wget`不存在时，尝试使用`curl`提交
+- 由于`readlink`不可靠，更改为手动设置路径
+- 当无法从本地网卡获得外网 ip 时，尝试从外部 api 获取
 
 2015/2/24
 
--   增加token鉴权方式 (by wbchn)
+- 增加 token 鉴权方式 (by wbchn)
 
 2015/7/7
 
--   使用D+服务获取域名解析
+- 使用 D+服务获取域名解析
 
 2016/2/25
 
--   增加配置文件，分离脚本与配置，适配内网。
--   加入Mac支持
--   sed脚本POSIX化，可跨平台
+- 增加配置文件，分离脚本与配置，适配内网。
+- 加入 Mac 支持
+- sed 脚本 POSIX 化，可跨平台
 
 2016/3/23
 
--   进一步POSIX化，支持Mac和大部分Linux发行版
--   更改配置文件格式
+- 进一步 POSIX 化，支持 Mac 和大部分 Linux 发行版
+- 更改配置文件格式
 
 # 共同维护者
 
