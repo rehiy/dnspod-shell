@@ -195,7 +195,7 @@ arDdnsUpdate() {
     recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
 
     # Output Result
-    if [ "$recordIp" = "$4" ] && [ "$recordCd" = "1" ]; then
+    if [ "$recordIp" == "$4" ] && [ "$recordCd" == "1" ]; then
         echo "arDdnsUpdate - success"
         return 0
     else
@@ -220,7 +220,7 @@ arDdnsCheck() {
     local postRs
 
     echo "Fetching Host Ip"
-    if [ "$3" = "6" ]; then
+    if [ "$3" == "6" ]; then
         recordType=AAAA
         hostIp=$(arWanIp6)
     else
