@@ -50,7 +50,7 @@ arWanIp4() {
     fi
 
     if [ -n "$(echo $hostIp | grep -Ev '^[0-9\.]+$')" ]; then
-        echo "arWanIp4 - Invalid IPv4 address $hostIp"
+        echo "arWanIp4 - Invalid ip address $hostIp"
         return 1
     fi
 
@@ -76,7 +76,7 @@ arWanIp6() {
     esac
 
     if [ -n "$(echo $hostIp | grep -Ev '^[0-9a-fA-F:]+$')" ]; then
-        echo "arWanIp6 - Invalid IPv6 address"
+        echo "arWanIp6 - Invalid ip address"
         return 1
     fi
 
@@ -225,7 +225,7 @@ arDdnsCheck() {
         return 1
     fi
 
-    echo "Getting Ids of $2.$1"
+    echo "Fetching Ids of $2.$1"
     ddnsIds=$(arDdnsIds $recordType $1 $2)
 
     errCode=$?
