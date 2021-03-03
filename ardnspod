@@ -49,8 +49,8 @@ arWanIp4() {
         fi
     fi
 
-    if [ -n "$(echo $hostIp | awk '/^[0-9\.]+$/')" ]; then
-        echo "arWanIp4: No IPv4 address found, please check if you have one"
+    if [ -n "$(echo $hostIp | grep -Ev '^[0-9\.]+$')" ]; then
+        echo "arWanIp4 - Invalid IPv4 address $hostIp"
         return 1
     fi
 
@@ -75,8 +75,8 @@ arWanIp6() {
         ;;
     esac
 
-    if [ -n "$(echo $hostIp | awk '/^[0-9a-zA-Z:]+$/')" ]; then
-        echo "arWanIp6: No IPv6 address found, please check if you have one"
+    if [ -n "$(echo $hostIp | grep -Ev '^[0-9a-fA-F:]+$')" ]; then
+        echo "arWanIp6 - Invalid IPv6 address"
         return 1
     fi
 
@@ -118,7 +118,7 @@ arDdnsIds() {
 
     if ! [ "$domainId" -gt 0 ] 2>/dev/null ;then
         errMsg=$(echo $domainId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
-        echo "arDdnsIds: $errMsg"
+        echo "arDdnsIds - $errMsg"
         return 1
     fi
 
@@ -128,7 +128,7 @@ arDdnsIds() {
 
     if ! [ "$recordId" -gt 0 ] 2>/dev/null ;then
         errMsg=$(echo $recordId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
-        echo "arDdnsIds: $errMsg"
+        echo "arDdnsIds - $errMsg"
         return 1
     fi
 
@@ -156,7 +156,7 @@ arDdnsRecordIp() {
         ;;
         *)
             errMsg=$(echo $recordIp | sed 's/.*"message":"\([^\"]*\)".*/\1/')
-            echo "arDdnsRecordIp: $errMsg"
+            echo "arDdnsRecordIp - $errMsg"
             return 1
         ;;
     esac
@@ -175,7 +175,7 @@ arDdnsUpdate() {
     local recordCd
 
     if [ -z "$5" ]; then
-        echo "arDdnsUpdate: Args number error"
+        echo "arDdnsUpdate - Args number error"
         return 1
     fi
 
@@ -186,11 +186,11 @@ arDdnsUpdate() {
 
     # Output Result
     if [ "$recordIp" = "$4" ] && [ "$recordCd" = "1" ]; then
-        echo "arDdnsUpdate: success"
+        echo "arDdnsUpdate - success"
         return 0
     else
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-        echo "arDdnsUpdate: $errMsg"
+        echo "arDdnsUpdate - $errMsg"
         return 1
     fi
 
@@ -200,6 +200,8 @@ arDdnsUpdate() {
 # Args: Main Sub
 arDdnsCheck() {
 
+    local errCode
+
     local recordType
     local hostIp
 
@@ -207,6 +209,7 @@ arDdnsCheck() {
     local lastIp
     local postRs
 
+    echo "Fetching Host Ip"
     if [ "$3" = "6" ]; then
         recordType=AAAA
         hostIp=$(arWanIp6)
@@ -215,39 +218,39 @@ arDdnsCheck() {
         hostIp=$(arWanIp4)
     fi
 
-    if [ $? -ne 0 ]; then
-        echo $hostIp
+    errCode=$?
+    echo "> Host Ip: $hostIp"
+    echo "> Record Type: $recordType"
+    if [ $errCode -ne 0 ]; then
         return 1
-    else
-        echo "Record Type: $recordType"
-        echo "Host Ip: $hostIp"
     fi
 
+    echo "Getting Ids of $2.$1"
     ddnsIds=$(arDdnsIds $recordType $1 $2)
 
-    if [ $? -ne 0 ]; then
-        echo $ddnsIds
+    errCode=$?
+    echo "> Domain Ids: $ddnsIds"
+    if [ $errCode -ne 0 ]; then
         return 1
-    else
-        echo "Domain Ids: $ddnsIds"
     fi
 
-    echo "Checking Domain: $2.$1"
+    echo "Checking Record for $2.$1"
     lastIp=$(arDdnsRecordIp $ddnsIds)
 
-    if [ $? -ne 0 ]; then
-        echo $lastIp
+    errCode=$?
+    echo "> Last Ip: $lastIp"
+    if [ $errCode -ne 0 ]; then
         return 1
-    else
-        echo "Last Ip: $lastIp"
     fi
 
     if [ "$lastIp" == "$hostIp" ]; then
-        echo "Last Ip is the same as host Ip"
+        echo "> Last Ip is the same as host Ip"
         return 0
     fi
 
-    echo "Updating Domain: $2.$1"
-    arDdnsUpdate $ddnsIds $2 $hostIp $recordType
+    echo "Updating Record for $2.$1"
+    postRs=$(arDdnsUpdate $ddnsIds $2 $hostIp $recordType)
+
+    echo "> $postRs"
 
 }
