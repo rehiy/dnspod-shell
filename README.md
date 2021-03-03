@@ -72,4 +72,4 @@ Updating Record for test.rehi.org
 
 # 共同维护者
 
-ProfFan, <https://github.com/ProfFan>
+请参阅 <https://github.com/anrip/dnspod-shell/graphs/contributors>
