@@ -24,7 +24,12 @@ Updating Record for test.rehi.org
 
 ### 小提示
 
-- 如需单文件运行，将`ddnspod.sh`中的配置项添加到`ardnspod`底部，直接运行`ardnspod`即可
+- 如需单文件运行，参考`ddnspod.sh`中的配置项，添加到`ardnspod`底部，直接运行`ardnspod`即可
+
+```
+echo "arToken=12345,7676f344eaeaea9074c123451234512d" >> ./ardnspod
+echo "arDdnsCheck test.org subdomain" >> ./ardnspod
+```
 
 # 最近更新
 
