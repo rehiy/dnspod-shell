@@ -6,7 +6,7 @@
 
 - 编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
 
-- 运行`ddnspod.sh`执行更新，_支持添加为 cron 任务_
+- 运行`ddnspod.sh`，开启循环更新任务；建议将此脚本支持添加到计划任务；
 
 - 成功运行后，结果如下所示：
 
