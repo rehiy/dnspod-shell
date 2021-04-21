@@ -195,7 +195,7 @@ arDdnsUpdate() {
     recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
 
     # Output Result
-    if [ "$recordIp" == "$4" ] && [ "$recordCd" == "1" ]; then
+    if [ "$recordIp" = "$4" ] && [ "$recordCd" = "1" ]; then
         echo "arDdnsUpdate - success"
         return 0
     else
@@ -220,7 +220,7 @@ arDdnsCheck() {
     local postRs
 
     echo "Fetching Host Ip"
-    if [ "$3" == "6" ]; then
+    if [ "$3" = "6" ]; then
         recordType=AAAA
         hostIp=$(arWanIp6)
     else
@@ -236,7 +236,7 @@ arDdnsCheck() {
     fi
 
     echo "Fetching Ids of $2.$1"
-    ddnsIds=$(arDdnsIds $recordType $1 $2)
+    ddnsIds=$(arDdnsIds "$recordType" "$1" "$2")
 
     errCode=$?
     echo "> Domain Ids: $ddnsIds"
@@ -245,7 +245,7 @@ arDdnsCheck() {
     fi
 
     echo "Checking Record for $2.$1"
-    lastIp=$(arDdnsRecordIp $ddnsIds)
+    lastIp=$(arDdnsRecordIp "$ddnsIds")
 
     errCode=$?
     echo "> Last Ip: $lastIp"
@@ -253,13 +253,13 @@ arDdnsCheck() {
         return 1
     fi
 
-    if [ "$lastIp" == "$hostIp" ]; then
+    if [ "$lastIp" = "$hostIp" ]; then
         echo "> Last Ip is the same as host Ip"
         return 0
     fi
 
     echo "Updating Record for $2.$1"
-    postRs=$(arDdnsUpdate $ddnsIds $2 $hostIp $recordType)
+    postRs=$(arDdnsUpdate "$ddnsIds" "$2" "$hostIp" "$recordType")
 
     errCode=$?
     echo "> $postRs"
