@@ -43,9 +43,9 @@ arWanIp4() {
 
     if [ -z "$hostIp" ]; then
         if type wget >/dev/null 2>&1; then
-            hostIp=$(wget -q -O- http://members.3322.org/dyndns/getip)
+            hostIp=$(wget -q -O- https://v4.myip.la)
         else
-            hostIp=$(curl -s http://members.3322.org/dyndns/getip)
+            hostIp=$(curl -s https://v4.myip.la)
         fi
     fi
 
@@ -79,6 +79,14 @@ arWanIp6() {
             hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps" | tail -n 1)
         ;;
     esac
+
+    if [ -z "$hostIp" ]; then
+        if type wget >/dev/null 2>&1; then
+            hostIp=$(wget -q -O- https://v6.myip.la)
+        else
+            hostIp=$(curl -s https://v6.myip.la)
+        fi
+    fi
 
     if [ -z "$hostIp" ]; then
         echo "arWanIp6 - Can't get ip address"
