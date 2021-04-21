@@ -6,7 +6,7 @@
 
 - 编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
 
-- 运行`/your_real_path/ddnspod.sh`执行更新，_支持添加为 cron 任务_
+- 运行`ddnspod.sh`，开启循环更新任务；建议将此脚本支持添加到计划任务；
 
 - 成功运行后，结果如下所示：
 
@@ -24,7 +24,12 @@ Updating Record for test.rehi.org
 
 ### 小提示
 
-- 如需单文件运行，将`ddnspod.sh`中的配置项添加到`ardnspod`底部，直接运行`ardnspod`即可
+- 如需单文件运行，参考`ddnspod.sh`中的配置项，添加到`ardnspod`底部，直接运行`ardnspod`即可
+
+```
+echo "arToken=12345,7676f344eaeaea9074c123451234512d" >> ./ardnspod
+echo "arDdnsCheck test.org subdomain" >> ./ardnspod
+```
 
 # 最近更新
 
