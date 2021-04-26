@@ -2,11 +2,11 @@
 #
 
 #############################################################
-# AnripDdns v6.1.0
+# AnripDdns v6.1.1
 #
 # Dynamic DNS using DNSPod API
 #
-# Author: Anrip, https://github.com/anrip
+# Author: Rehiy, https://github.com/rehiy
 #                https://www.anrip.com/?s=dnspod
 # Collaborators: ProfFan, https://github.com/ProfFan
 #
@@ -107,7 +107,7 @@ arWanIp6() {
 
 arDdnsApi() {
 
-    local agent="AnripDdns/6.1.0(mail@anrip.com)"
+    local agent="AnripDdns/6.1.0(wang@rehiy.com)"
 
     local apiurl="https://dnsapi.cn/${1:?'Info.Version'}"
     local params="login_token=$arToken&format=json&$2"
@@ -253,7 +253,7 @@ arDdnsCheck() {
     fi
 
     echo "Checking Record for $2.$1"
-    lastIp=$(arDdnsRecordIp "$ddnsIds")
+    lastIp=$(arDdnsRecordIp $ddnsIds)
 
     errCode=$?
     echo "> Last Ip: $lastIp"
@@ -267,7 +267,7 @@ arDdnsCheck() {
     fi
 
     echo "Updating Record for $2.$1"
-    postRs=$(arDdnsUpdate "$ddnsIds" "$2" "$hostIp" "$recordType")
+    postRs=$(arDdnsUpdate $ddnsIds "$2" "$hostIp" "$recordType")
 
     errCode=$?
     echo "> $postRs"
