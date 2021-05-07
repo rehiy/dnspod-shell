@@ -31,10 +31,12 @@ arWanIp4() {
     lanIps="$lanIps|(^169\.254\.[0-9]{1,3}\.[0-9]{1,3}$)"
     lanIps="$lanIps|(^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3}$)"
     lanIps="$lanIps|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)"
+    
+    local vEthernets="\s(lo|veth|docker)"
 
     case $(uname) in
         'Linux')
-            hostIp=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
+            hostIp=$(ip -o -4 addr list | grep -Ev "$vEthernets" | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
         ;;
         'Darwin')
             hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
