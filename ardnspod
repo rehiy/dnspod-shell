@@ -170,7 +170,7 @@ arDdnsRecordIp() {
 
     # Output Record Ip
     case "$recordIp" in
-        [1-9]*)
+        [0-9a-fA-F]*)
             echo $recordIp
             return 0
         ;;
