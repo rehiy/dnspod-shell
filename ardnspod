@@ -69,7 +69,7 @@ arWanIp6() {
 
     local hostIp
 
-    local lanIps="(^$)|(^::1$)|(^fe[8-9,A-F])"
+    local lanIps="(^$)|(^::1$)|(^f)"
 
     case $(uname) in
         'Linux')
