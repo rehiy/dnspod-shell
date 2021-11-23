@@ -73,7 +73,7 @@ arWanIp6() {
 
     case $(uname) in
         'Linux')
-            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps" | tail -n 1)
+            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' |awk '{print $4,substr($NF,0,length($NF)-3)}'|sed 's/fore/2592000/g'|sort -k 2 -n | cut -d/ -f1 | grep -Ev "$lanIps" | tail -n 1)
         ;;
         'Darwin')
             hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps" | tail -n 1)
