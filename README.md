@@ -35,7 +35,7 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 2021/11/25
 
-- 优先选择剩余时间最长的ipv6地址 by https://github.com/kaedeair/dnspod-shell
+- 优先选择剩余时间最长的ipv6地址 [@kaedeair](https://github.com/kaedeair/dnspod-shell)
 
 2021/3/3
 
