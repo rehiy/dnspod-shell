@@ -36,7 +36,7 @@ arWanIp4() {
         'Linux')
             hostIp=$(ip -o -4 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4}' | cut -d/ -f1 | grep -Ev "$lanIps")
         ;;
-        'Darwin')
+        Darwin|FreeBSD)
             hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
     esac
@@ -75,7 +75,7 @@ arWanIp6() {
         'Linux')
             hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4,substr($NF,0,length($NF)-3)}' | sed 's/fore/2592000/g' | sort -k 2 -n | cut -d/ -f1 | grep -Ev "$lanIps" | head -n 1)
         ;;
-        'Darwin')
+        Darwin|FreeBSD)
             hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps" | head -n 1)
         ;;
     esac
