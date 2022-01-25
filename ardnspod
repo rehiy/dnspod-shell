@@ -71,9 +71,10 @@ arWanIp6() {
 
     local lanIps="(^$)|(^::1$)|(^[fF][eE][8-9a-fA-F])"
 
+    # sort指令添加参数-r使得获得最大preferred_lft值的IP， awk '{ if ( length($0) >= 30 ) print $0}'过滤内网IP
     case $(uname) in
         'Linux')
-            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4,substr($NF,0,length($NF)-3)}' | sed 's/fore/2592000/g' | sort -k 2 -n | cut -d/ -f1 | grep -Ev "$lanIps" | head -n 1)
+            hostIp=$(ip -o -6 addr list | grep -Ev '\s(docker|lo)' | awk '{print $4,substr($NF,0,length($NF)-3)}' | sed 's/fore/2592000/g' | sort -k 2 -n -r | cut -d/ -f1 | awk '{ if ( length($0) >= 30 ) print $0}' | grep -Ev "$lanIps" | head -n 1)
         ;;
         Darwin|FreeBSD)
             hostIp=$(ifconfig | grep "inet6 " | awk '{print $2}' | grep -Ev "$lanIps" | head -n 1)
