@@ -185,7 +185,7 @@ arDdnsCheck() {
         fi
     fi
 
-    echo "Fetching RecordId of $2.$1"
+    echo "Fetching Record Id of $2.$1"
     recordId=$(arDdnsLookup "$1" "$2" "$recordType")
 
     errCode=$?
@@ -194,7 +194,7 @@ arDdnsCheck() {
         return 1
     fi
 
-    echo "Updating Record for $2.$1"
+    echo "Updating Record Value for $2.$1"
     updateResult=$(arDdnsUpdate "$1" "$2" "$recordId" "$recordType" "$hostIp")
 
     errCode=$?
