@@ -1,6 +1,6 @@
 # ArDNSPod
 
-基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端，优先适配网卡地址，无法获得合法外网地址则使用外部接口获取 IP 地址
+基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端。IPv4优先适配网卡地址，无法获得合法外网地址则使用dnspod接口填充IP；ipv6 直接从外部接口获取地址。
 
 # 使用方法
 
@@ -14,12 +14,10 @@
 Fetching Host Ip
 > Host Ip: 11.22.33.55
 > Record Type: A
-Fetching Ids of test.rehi.org
-> Domain Ids: 84982658 766956386
-Checking Record for test.rehi.org
-> Last Ip: 11.22.33.77
-Updating Record for test.rehi.org
-> arDdnsUpdate - success
+Fetching Record Id of test.rehi.org
+> Record Id: 766956386
+Updating Record Value for test.rehi.org
+> arDdnsUpdate - successful
 ```
 
 ### 小提示
@@ -32,6 +30,12 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 ```
 
 # 最近更新
+
+2022/03/11
+
+- 改用ddns接口更新数据
+- ipv4 先从本机获取，若没有合法地址，则使用dnspod接口填充IP
+- ipv6 本机获取难度太大，且错误率高，改为直接从外部接口获取地址
 
 2021/11/25
 
