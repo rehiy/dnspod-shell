@@ -16,7 +16,7 @@
 
 export arToken
 
-# Get WAN IPv4
+# Get IPv4
 
 arWanIp4() {
 
@@ -51,7 +51,7 @@ arWanIp4() {
 
 }
 
-# Get WAN IPv6
+# Get IPv6
 
 arWanIp6() {
 
@@ -64,12 +64,12 @@ arWanIp6() {
     fi
 
     if [ -z "$hostIp" ]; then
-        echo "arWanIp6 - Can't get ip address"
+        echo "> arWanIp6 - Can't get ip address"
         return 1
     fi
 
     if [ -z "$(echo $hostIp | grep -E '^[0-9a-fA-F:]+$')" ]; then
-        echo "arWanIp6 - Invalid ip address"
+        echo "> arWanIp6 - Invalid ip address"
         return 1
     fi
 
@@ -78,11 +78,11 @@ arWanIp6() {
 }
 
 # Dnspod Bridge
-# Args: type data
+# Args: interface data
 
 arDdnsApi() {
 
-    local agent="AnripDdns/6.2.0(wang@rehiy.com)"
+    local agent="AnripDdns/6.1.0(wang@rehiy.com)"
 
     local dnsapi="https://dnsapi.cn/${1:?'Info.Version'}"
     local params="login_token=$arToken&format=json&lang=en&$2"
@@ -95,7 +95,7 @@ arDdnsApi() {
 
 }
 
-# Fetch recordId
+# Fetch Record Id
 # Args: domain subdomain recordType
 
 arDdnsLookup() {
@@ -109,15 +109,15 @@ arDdnsLookup() {
 
     if ! [ "$recordId" -gt 0 ] 2>/dev/null ;then
         errMsg=$(echo $recordId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
-        echo "arDdnsLookup - $errMsg"
+        echo "> arDdnsLookup - $errMsg"
         return 1
     fi
 
     echo $recordId
 }
 
-# Update Record Ip
-# Args: domain subdomain recordId recordType hostIp
+# Update Record Value
+# Args: domain subdomain recordId recordType [hostIp]
 
 arDdnsUpdate() {
 
@@ -139,11 +139,11 @@ arDdnsUpdate() {
     recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
     if [ "$recordCd" = "1" ]; then
-        echo "arDdnsUpdate - successful"
+        echo "> arDdnsUpdate - successful"
         return 0
     else
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-        echo "arDdnsUpdate - $errMsg"
+        echo "> arDdnsUpdate - $errMsg"
         return 1
     fi
 
@@ -162,16 +162,18 @@ arDdnsCheck() {
 
     local updateResult
 
+    echo "=== Check $2.$1 ==="
     echo "Fetching Host Ip"
 
     if [ "$3" = "6" ]; then
         recordType=AAAA
         hostIp=$(arWanIp6)
-        errCode=$?
-        echo "> Host Ip: $hostIp"
-        echo "> Record Type: $recordType"
-        if [ $errCode -ne 0 ]; then
+        if [ $? -ne 0 ]; then
+            echo $hostIp
             return 1
+        else
+            echo "> Host Ip: $hostIp"
+            echo "> Record Type: $recordType"
         fi
     else
         recordType=A
@@ -185,22 +187,17 @@ arDdnsCheck() {
         fi
     fi
 
-    echo "Fetching Record Id of $2.$1"
+    echo "Fetching RecordId"
     recordId=$(arDdnsLookup "$1" "$2" "$recordType")
 
-    errCode=$?
-    echo "> Record Id: $recordId"
-    if [ $errCode -ne 0 ]; then
+    if [ $? -ne 0 ]; then
+        echo $recordId
         return 1
+    else
+        echo "> Record Id: $recordId"
     fi
 
-    echo "Updating Record Value for $2.$1"
-    updateResult=$(arDdnsUpdate "$1" "$2" "$recordId" "$recordType" "$hostIp")
-
-    errCode=$?
-    echo "> $updateResult"
-    if [ $errCode -ne 0 ]; then
-        return 1
-    fi
+    echo "Updating Record value"
+    arDdnsUpdate "$1" "$2" "$recordId" "$recordType" "$hostIp"
 
 }
