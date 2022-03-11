@@ -1,6 +1,6 @@
 # ArDNSPod
 
-基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端。IPv4优先适配网卡地址，无法获得合法外网地址则使用dnspod接口填充IP；ipv6 直接从外部接口获取地址。
+基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端。IPv4 优先适配网卡地址，无法获得合法外网地址则使用 DNSPod 接口自动更新IP；为保证成功率，IPv6 直接从外部接口获取地址。
 
 # 使用方法
 
