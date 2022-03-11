@@ -18,7 +18,7 @@ Fetching Host Ip
 Fetching RecordId
 > Record Id: 998534425
 Updating Record value
-> arDdnsUpdate - successful
+> arDdnsUpdate - 1.2.3.4
 ```
 
 ### 小提示
