@@ -11,12 +11,13 @@
 - 成功运行后，结果如下所示：
 
 ```
+=== Check test.rehi.org ===
 Fetching Host Ip
-> Host Ip: 11.22.33.55
+> Host Ip: Auto
 > Record Type: A
-Fetching Record Id of test.rehi.org
-> Record Id: 766956386
-Updating Record Value for test.rehi.org
+Fetching RecordId
+> Record Id: 998534425
+Updating Record value
 > arDdnsUpdate - successful
 ```
 
