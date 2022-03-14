@@ -101,6 +101,7 @@ arDdnsApi() {
 arDdnsLookup() {
 
     local errMsg
+
     local recordId
 
     # Get Record Id
@@ -124,8 +125,8 @@ arDdnsUpdate() {
     local errMsg
 
     local recordRs
-    local recordIp
     local recordCd
+    local recordIp
 
     # update ip
     if [ -z "$5" ]; then
@@ -154,14 +155,10 @@ arDdnsUpdate() {
 
 arDdnsCheck() {
 
-    local errCode
+    local hostIp
 
     local recordId
     local recordType
-
-    local hostIp
-
-    local updateResult
 
     echo "=== Check $2.$1 ==="
     echo "Fetching Host Ip"
