@@ -2,6 +2,8 @@
 
 基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端。IPv4 优先适配网卡地址，无法获得合法外网地址则使用 DNSPod 接口自动更新；为保证成功率，IPv6 直接从外部接口获取地址。
 
+**官方正在评估DDNS接口支持IPv6的方案，如需支持IPv6暂时请使用v6.1版本**
+
 # 使用方法
 
 - 编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
