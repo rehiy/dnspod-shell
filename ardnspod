@@ -18,6 +18,10 @@
 
 export arToken=""
 
+# Force to use third party API to get IP or not
+
+export forceUseThirdApi=false
+
 # Get WAN IPv4
 
 arWanIp4() {
@@ -41,7 +45,7 @@ arWanIp4() {
         ;;
     esac
 
-    if [ -z "$hostIp" ]; then
+    if [ -z "$hostIp" -o "$forceUseThirdApi" = true ]; then
         if type wget >/dev/null 2>&1; then
             hostIp=$(wget -q -O- https://v4.myip.la)
         else
@@ -80,7 +84,7 @@ arWanIp6() {
         ;;
     esac
 
-    if [ -z "$hostIp" ]; then
+    if [ -z "$hostIp" -o "$forceUseThirdApi" = true ]; then
         if type wget >/dev/null 2>&1; then
             hostIp=$(wget -q -O- https://v6.myip.la)
         else
