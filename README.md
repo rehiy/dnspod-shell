@@ -33,6 +33,10 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 最近更新
 
+2022/5/3
+
+- 增加强制使用第三方API获取IP的选项 @Ljzd-PRO
+
 2021/11/25
 
 - 优先选择剩余时间最长的ipv6地址 [@kaedeair](https://github.com/kaedeair/dnspod-shell)
