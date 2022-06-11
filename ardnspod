@@ -47,9 +47,9 @@ arWanIp4() {
 
     if [ -z "$hostIp" -o "$forceUseThirdApi" = true ]; then
         if type wget >/dev/null 2>&1; then
-            hostIp=$(wget -q -O- https://v4.myip.la)
+            hostIp=$(wget -q -O- https://ipv4.icanhazip.com/)
         else
-            hostIp=$(curl -s https://v4.myip.la)
+            hostIp=$(curl -s https://ipv4.icanhazip.com/)
         fi
     fi
 
@@ -86,9 +86,9 @@ arWanIp6() {
 
     if [ -z "$hostIp" -o "$forceUseThirdApi" = true ]; then
         if type wget >/dev/null 2>&1; then
-            hostIp=$(wget -q -O- https://v6.myip.la)
+            hostIp=$(wget -q -O- https://ipv6.icanhazip.com/)
         else
-            hostIp=$(curl -s https://v6.myip.la)
+            hostIp=$(curl -s https://ipv6.icanhazip.com/)
         fi
     fi
 
