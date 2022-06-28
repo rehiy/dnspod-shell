@@ -58,9 +58,9 @@ arWanIp6() {
     local hostIp
 
     if type curl >/dev/null 2>&1; then
-        hostIp=$(curl -s https://v6.myip.la)
+        hostIp=$(curl -s https://v6.ip.sb)
     else
-        hostIp=$(wget -q -O- https://v6.myip.la)
+        hostIp=$(wget -q -O- https://v6.ip.sb)
     fi
 
     if [ -z "$hostIp" ]; then
