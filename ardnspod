@@ -82,7 +82,7 @@ arWanIp6() {
 
 arDdnsApi() {
 
-    local agent="AnripDdns/6.1.0(wang@rehiy.com)"
+    local agent="AnripDdns/6.2.0(wang@rehiy.com)"
 
     local dnsapi="https://dnsapi.cn/${1:?'Info.Version'}"
     local params="login_token=$arToken&format=json&lang=en&$2"
