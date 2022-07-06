@@ -33,7 +33,7 @@ get_ipv6() {
 
 # dnspod的API密钥 申请地址：https://console.dnspod.cn/account/token/token
 DNSpod_ID="243177"
-DNSpod_Token="7676f344eaeaea9074c123451234512d"
+DNSpod_Token="357e3a1280d6dfcaf7ea30c3e4e701cc"
 
 # 域名解析ddns1
 mac="00:11:32:9e:12:7b" # 设备mac地址
