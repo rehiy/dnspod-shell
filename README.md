@@ -31,6 +31,7 @@ subdomainU="live" # 子域(主机记录)
 ...
 ```
 ### 运行程序
+- 请在腾讯云的子域名【记录类型】设置为AAAA，再运行
 ```sh
 sh /root/myddns/myddns.sh
 ```
