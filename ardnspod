@@ -15,6 +15,7 @@
 #############################################################
 
 export arToken
+export mac_ipv6
 
 # Get IPv4
 
@@ -31,7 +32,7 @@ arWanIp4() {
 arWanIp6() {
 
     hostIp=$(curl 6.ipw.cn)
-
+    hostIp=mac_ipv6
     echo $hostIp
 
 }
