@@ -5,13 +5,15 @@
 . /your_real_path/ardnspod
 
 # Combine your token ID and token together as follows
-arToken="12345,7676f344eaeaea9074c123451234512d"
+arToken="243177,7676f344eaeaea9074c123451234512d"
 
 # Place each domain you want to check as follows
 # you can have multiple arDdnsCheck blocks
 
 # IPv4:
-arDdnsCheck "test.org" "subdomain"
+# arDdnsCheck "test.org" "subdomain"
 
 # IPv6:
-arDdnsCheck "test.org" "subdomain6" 6
+# arDdnsCheck "test.org" "subdomain6" 6
+#              域名、子域（主机记录）
+arDdnsCheck "bueess.top" "xad" 6
