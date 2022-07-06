@@ -22,7 +22,6 @@ export mac_ipv6
 arWanIp4() {
 
     hostIp=$(curl 4.ipw.cn)
-
     echo $hostIp
 
 }
