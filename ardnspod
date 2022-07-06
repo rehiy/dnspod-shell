@@ -32,7 +32,7 @@ arWanIp4() {
 arWanIp6() {
 
     hostIp=$(curl 6.ipw.cn)
-    local hostIp=mac_ipv6
+    local hostIp=$mac_ipv6
     echo $hostIp
 
 }
