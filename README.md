@@ -6,7 +6,7 @@
 
 ### openwrt终端输入下面命令，一键安装
 ```sh
-wget  https://ghproxy.com/https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/install.sh && chmod +x install.sh && ./install.sh
+wget https://cdn.jsdelivr.net/gh/Howardnm/dnspod-shell@master/install.sh && chmod +x install.sh && ./install.sh
 ```
 ### 修改myddns.sh配置文件
 ```sh
@@ -44,5 +44,5 @@ sh /root/myddns/myddns.sh
 - 每10分钟刷新一次动态域名
 ```sh
 */10 * * * * sh /root/myddns/myddns.sh
-30 0 * * * wget  https://ghproxy.com/https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/install.sh && chmod +x install.sh && ./install.sh
+30 0 * * * wget https://cdn.jsdelivr.net/gh/Howardnm/dnspod-shell@master/install.sh && chmod +x install.sh && ./install.sh
 ```
