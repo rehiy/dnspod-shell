@@ -1,14 +1,41 @@
-# ArDNSPod
+# openwrt终端输入下面命令，一键安装
 ```sh
 wget  https://ghproxy.com/https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/install.sh && chmod +x install.sh && ./install.sh
 ```
+# 修改myddns.sh配置文件
+```sh
+# dnspod的API密钥 申请地址：https://console.dnspod.cn/account/token/token
+DNSpod_ID="243177"
+DNSpod_Token="357e3a1280d6dfcaf7ea30c3e4e701dd"
+
+# 域名解析ddns1
+mac="00:11:32:9e:12:7b" # 设备mac地址
+domainU="abc.com" # 主域名
+subdomainU="www" # 子域(主机记录)
+run_dnspod # 运行程序
+
+# 域名解析ddns2
+...
+# 域名解析ddns3
+...
+...
+```
+# 运行程序
+```sh
+sh /root/myddns/myddns.sh
+```
+
+# 加入openwrt计划任务
+```sh
+*/10 * * * * sh /root/myddns/myddns.sh
+```
+
+
 基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端。IPv4 优先适配网卡地址，无法获得合法外网地址则使用 DNSPod 接口自动更新；为保证成功率，IPv6 直接从外部接口获取地址。
 
 **官方DDNS接口已支持设置IPv6，如有兼容问题请使用`v6.1`分支版本**
 
 # 使用方法
-
-- 编辑`ddnspod.sh`，分别修改`/your_real_path/ardnspod`、`arToken`和`arDdnsCheck`为真实信息
 
 - 运行`ddnspod.sh`，开启循环更新任务；建议将此脚本支持添加到计划任务；
 
@@ -23,15 +50,6 @@ Fetching RecordId
 > Record Id: 998534425
 Updating Record value
 > arDdnsUpdate - 1.2.3.4
-```
-
-### 小提示
-
-- 如需单文件运行，参考`ddnspod.sh`中的配置项，添加到`ardnspod`底部，直接运行`ardnspod`即可
-
-```
-echo "arToken=12345,7676f344eaeaea9074c123451234512d" >> ./ardnspod
-echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 ```
 
 # 最近更新
