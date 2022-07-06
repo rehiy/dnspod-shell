@@ -46,3 +46,4 @@ sh /root/myddns/myddns.sh
 ```sh
 */10 * * * * sh /root/myddns/myddns.sh
 ```
+![image](https://user-images.githubusercontent.com/55622355/177611100-17d8417d-6f72-46c0-b107-4ac536ed070b.png)
