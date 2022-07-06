@@ -13,6 +13,7 @@ run_dnspod() {
     # you can have multiple arDdnsCheck blocks
 
     # IPv6:
+    mac_ipv6="$mac_ipv6"
     # arDdnsCheck "test.org" "subdomain6" 6
     #              "域名"   "子域(主机记录)"
     arDdnsCheck "$domainU" "$subdomainU" "6"
