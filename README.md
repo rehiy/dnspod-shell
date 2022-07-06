@@ -8,7 +8,7 @@
 ```sh
 wget https://cdn.jsdelivr.net/gh/Howardnm/dnspod-shell@master/install.sh && chmod +x install.sh && ./install.sh
 ```
-### 修改myddns.sh配置文件
+### 在/root/myddns/修改myddns.sh配置文件
 ```sh
 # dnspod的API密钥 申请地址：https://console.dnspod.cn/account/token/token
 DNSpod_ID="243177"
