@@ -34,19 +34,19 @@ get_ipv6() {
 
 # dnspod的API密钥 申请地址：https://console.dnspod.cn/account/token/token
 DNSpod_ID="243177"
-DNSpod_Token="357e3a1280d6dfcaf7ea30c3e4e701dd"
+DNSpod_Token="357e3a1280d6dfcaf7ea30c3e4e701cc"
 
 # 域名解析ddns1
-mac="45:52:82:9e:73:86" # 设备mac地址
-domainU="abc.com" # 主域名
-subdomainU="www" # 子域(主机记录)
+mac="00:11:32:9E:12:7B" # 设备mac地址
+domainU="bueess.top" # 主域名
+subdomainU="xnas" # 子域(主机记录)
 run_dnspod # 运行程序
 
 # 域名解析ddns2
-mac="45:52:82:9e:73:13" # 设备mac地址
-domainU="abc.com" # 主域名
-subdomainU="live" # 子域(主机记录)
-# run_dnspod # 运行程序 (启动ddns2，请删除最前面的#号)
+mac="02:42:C0:A8:7B:E1" # 设备mac地址
+domainU="bueess.top" # 主域名
+subdomainU="xqb" # 子域(主机记录)
+run_dnspod # 运行程序 (启动ddns2，请删除最前面的#号)
 
 # 域名解析ddns3
 mac="" # 设备mac地址
