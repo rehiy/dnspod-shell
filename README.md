@@ -15,7 +15,7 @@ DNSpod_ID="243177"
 DNSpod_Token="357e3a1280d6dfcaf7ea30c3e4e701dd"
 
 # 域名解析ddns1
-mac="00:11:32:9e:12:7b" # 设备mac地址
+mac="45:52:82:9e:73:86" # 设备mac地址
 domainU="abc.com" # 主域名
 subdomainU="www" # 子域(主机记录)
 run_dnspod # 运行程序
