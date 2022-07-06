@@ -15,7 +15,7 @@ run_dnspod() {
     # IPv6:
     # arDdnsCheck "test.org" "subdomain6" 6
     #              "域名"   "子域(主机记录)"
-    arDdnsCheck "$domainU" "$subdomainU" 6
+    arDdnsCheck "$domainU" "$subdomainU" "6"
 }
 
 # get openwrt-all-device ip list
