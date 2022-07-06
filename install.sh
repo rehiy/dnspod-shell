@@ -1,8 +1,7 @@
 #!/bin/sh
 #
-rm -f ardnspod
-rm -f ddnspod.sh
-rm -f myddns.sh
-curl https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/ardnspod
-curl https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/ddnspod.sh
-curl https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/myddns.sh
+mkdir /root/myddns
+rm -f /root/myddns/*
+wget -P /root/myddns/ https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/ardnspod
+wget -P /root/myddns/ https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/ddnspod.sh
+wget -P /root/myddns/ https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/myddns.sh

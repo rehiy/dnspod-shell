@@ -4,7 +4,7 @@
 run_dnspod() {
     get_ipv6
     # Import ardnspod functions
-    . $path1
+    . /root/myddns/ardnspod
 
     # Combine your token ID and token together as follows
     arToken="$DNSpod_ID,$DNSpod_Token"
@@ -29,8 +29,6 @@ get_ipv6() {
 }
 
 ######----------######----------######----------######----------######----------######
-# 脚本ardnspod文件的绝对路径
-path1="/root/ardnspod"
 
 # dnspod的API密钥 申请地址：https://console.dnspod.cn/account/token/token
 DNSpod_ID="243177"
