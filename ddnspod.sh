@@ -16,4 +16,3 @@ arToken="243177,7676f344eaeaea9074c123451234512d"
 # IPv6:
 # arDdnsCheck "test.org" "subdomain6" 6
 #              "域名"   "子域(主机记录)"
-arDdnsCheck "bueess.top" "xad" 6
