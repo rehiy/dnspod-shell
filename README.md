@@ -1,6 +1,6 @@
 # ArDNSPod
 ```sh
-wget  https://raw.githubusercontent.com/Howardnm/dnspod-shell/main/install.sh && chmod +x install.sh && ./install.sh
+wget  https://raw.githubusercontent.com/Howardnm/dnspod-shell/master/install.sh && chmod +x install.sh && ./install.sh
 ```
 基于 DNSPod 用户 API 实现的纯 Shell 动态域名客户端。IPv4 优先适配网卡地址，无法获得合法外网地址则使用 DNSPod 接口自动更新；为保证成功率，IPv6 直接从外部接口获取地址。
 
