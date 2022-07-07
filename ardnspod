@@ -31,7 +31,12 @@ arWanIp4() {
 arWanIp6() {
 
     hostIp=$(curl 6.ipw.cn)
+    if ["${mac_ipv6}" = ""]; then
+    echo ".."
+    else
     local hostIp=$mac_ipv6
+    fi
+
     echo $hostIp
 
 }
