@@ -13,6 +13,9 @@ wget https://cdn.jsdelivr.net/gh/Howardnm/dnspod-shell@master/install.sh && chmo
 ```
 ### 在/root/myddns/修改myddns.sh配置文件
 ```sh
+# dhcp服务分发的ip段(你的ip段是10.10.10.0/24  只填"10.10."前两个就行)
+HDCP_ip="192.168."
+
 # dnspod的API密钥 申请地址：https://console.dnspod.cn/account/token/token
 DNSpod_ID="243177"
 DNSpod_Token="357e3a1280d6dfcaf7ea30c3e4e701dd"
