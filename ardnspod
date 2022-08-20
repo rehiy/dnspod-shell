@@ -16,6 +16,15 @@
 
 export arToken
 
+# Define arLog to output to stderr, if not defined in ddnspod.sh
+
+if ! type arLog >/dev/null 2>&1; then
+    arLog() {
+        >&2 echo $@
+    }
+fi
+
+
 # Get IPv4
 
 arWanIp4() {
@@ -64,12 +73,12 @@ arWanIp6() {
     fi
 
     if [ -z "$hostIp" ]; then
-        echo "> arWanIp6 - Can't get ip address"
+        arLog "> arWanIp6 - Can't get ip address"
         return 1
     fi
 
     if [ -z "$(echo $hostIp | grep -E '^[0-9a-fA-F:]+$')" ]; then
-        echo "> arWanIp6 - Invalid ip address"
+        arLog "> arWanIp6 - Invalid ip address"
         return 1
     fi
 
@@ -110,7 +119,7 @@ arDdnsLookup() {
 
     if ! [ "$recordId" -gt 0 ] 2>/dev/null ;then
         errMsg=$(echo $recordId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
-        echo "> arDdnsLookup - $errMsg"
+        arLog "> arDdnsLookup - $errMsg"
         return 1
     fi
 
@@ -140,11 +149,12 @@ arDdnsUpdate() {
     recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
     if [ "$recordCd" = "1" ]; then
-        echo "> arDdnsUpdate - $recordIp"
+        arLog "> arDdnsUpdate - $recordIp"
+        echo $recordIp
         return 0
     else
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-        echo "> arDdnsUpdate - $errMsg"
+        arLog "> arDdnsUpdate - $errMsg"
         return 1
     fi
 
@@ -160,42 +170,42 @@ arDdnsCheck() {
     local recordId
     local recordType
 
-    echo "=== Check $2.$1 ==="
-    echo "Fetching Host Ip"
+    arLog "=== Check $2.$1 ==="
+    arLog "Fetching Host Ip"
 
     if [ "$3" = "6" ]; then
         recordType=AAAA
         hostIp=$(arWanIp6)
         if [ $? -ne 0 ]; then
-            echo $hostIp
+            arLog $hostIp
             return 1
         else
-            echo "> Host Ip: $hostIp"
-            echo "> Record Type: $recordType"
+            arLog "> Host Ip: $hostIp"
+            arLog "> Record Type: $recordType"
         fi
     else
         recordType=A
         hostIp=$(arWanIp4)
         if [ $? -ne 0 ]; then
-            echo "> Host Ip: Auto"
-            echo "> Record Type: $recordType"
+            arLog "> Host Ip: Auto"
+            arLog "> Record Type: $recordType"
         else
-            echo "> Host Ip: $hostIp"
-            echo "> Record Type: $recordType"
+            arLog "> Host Ip: $hostIp"
+            arLog "> Record Type: $recordType"
         fi
     fi
 
-    echo "Fetching RecordId"
+    arLog "Fetching RecordId"
     recordId=$(arDdnsLookup "$1" "$2" "$recordType")
 
     if [ $? -ne 0 ]; then
-        echo $recordId
+        arLog $recordId
         return 1
     else
-        echo "> Record Id: $recordId"
+        arLog "> Record Id: $recordId"
     fi
 
-    echo "Updating Record value"
+    arLog "Updating Record value"
     arDdnsUpdate "$1" "$2" "$recordId" "$recordType" "$hostIp"
 
 }
