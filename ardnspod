@@ -24,6 +24,12 @@ if ! type arLog >/dev/null 2>&1; then
     }
 fi
 
+# The url to be used for querying public ipv6 address. We set a default here.
+
+if [ -z "$arIp6QueryUrl" ]; then
+    arIp6QueryUrl="https://6.ipw.cn"
+fi
+
 # The error code to return when a ddns record is not changed
 
 if [ -z "$arErrCodeUnchanged" ]; then
@@ -83,9 +89,9 @@ arWanIp6() {
 
     if [ -z "$hostIp" ]; then
         if type curl >/dev/null 2>&1; then
-            hostIp=$(curl -s 6.ipw.cn)
+            hostIp=$(curl -6 -s $arIp6QueryUrl)
         else
-            hostIp=$(wget -q -O- 6.ipw.cn)
+            hostIp=$(wget -6 -q -O- $arIp6QueryUrl)
         fi
     fi
 
