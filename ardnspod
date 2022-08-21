@@ -114,9 +114,9 @@ arDdnsApi() {
     local params="login_token=$arToken&format=json&lang=en&$2"
 
     if type curl >/dev/null 2>&1; then
-        curl -s -A $agent -d $params $dnsapi
+        curl -4 -s -A $agent -d $params $dnsapi
     else
-        wget -q -O- --no-check-certificate -U $agent --post-data $params $dnsapi
+        wget -4 -q -O- --no-check-certificate -U $agent --post-data $params $dnsapi
     fi
 
 }
