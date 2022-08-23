@@ -24,6 +24,11 @@ if ! type arLog >/dev/null 2>&1; then
     }
 fi
 
+# The error code to return when a ddns record is not changed
+
+if [ -z "$arErrCodeUnchanged" ]; then
+    arErrCodeUnchanged=0 # By default, report unchanged event as success
+fi
 
 # Get IPv4
 
@@ -133,9 +138,25 @@ arDdnsUpdate() {
 
     local errMsg
 
+    local lastRecordIp
     local recordRs
     local recordCd
     local recordIp
+
+    # if code for unchanged event is specified to be different from updated event, we fetch the last record ip
+    if [ $arErrCodeUnchanged -ne 0 ]; then
+        recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
+        recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+        lastRecordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
+
+        if [ "$recordCd" != "1" ]; then
+            errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+            arLog "> arDdnsUpdate - error: $errMsg"
+            return 1
+        else
+            arLog "> arDdnsUpdate - last record ip: $lastRecordIp"
+        fi
+    fi
 
     # update ip
     if [ -z "$5" ]; then
@@ -148,14 +169,22 @@ arDdnsUpdate() {
     recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
     recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
-    if [ "$recordCd" = "1" ]; then
-        arLog "> arDdnsUpdate - $recordIp"
+    if [ "$recordCd" != "1" ]; then
+        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+        arLog "> arDdnsUpdate - error: $errMsg"
+        return 1
+    elif [ $arErrCodeUnchanged -eq 0 ]; then
+        arLog "> arDdnsUpdate - success: $recordIp" # both unchanged and updated event
         echo $recordIp
         return 0
+    elif [ "$recordIp" = "$lastRecordIp" ]; then
+        arLog "> arDdnsUpdate - unchanged: $recordIp" # unchanged event
+        echo $recordIp
+        return $arErrCodeUnchanged
     else
-        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-        arLog "> arDdnsUpdate - $errMsg"
-        return 1
+        arLog "> arDdnsUpdate - updated: $recordIp" # updated event
+        echo $recordIp
+        return 0
     fi
 
 }
