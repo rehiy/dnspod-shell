@@ -42,15 +42,7 @@ arWanIp4() {
 
     local hostIp
 
-    local lanIps="^$"
-
-    lanIps="$lanIps|(^10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)"
-    lanIps="$lanIps|(^127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)"
-    lanIps="$lanIps|(^169\.254\.[0-9]{1,3}\.[0-9]{1,3}$)"
-    lanIps="$lanIps|(^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3}$)"
-    lanIps="$lanIps|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)"
-    lanIps="$lanIps|(^100\.(6[4-9]|[7-9][0-9])\.[0-9]{1,3}\.[0-9]{1,3}$)"  # 100.64.x.x - 100.99.x.x
-    lanIps="$lanIps|(^100\.1([0-1][0-9]|2[0-7])\.[0-9]{1,3}\.[0-9]{1,3}$)" # 100.100.x.x - 100.127.x.x
+    local lanIps=$(arLanIp4)
 
     case $(uname) in
         'Linux')
@@ -62,10 +54,11 @@ arWanIp4() {
     esac
 
     if [ -z "$hostIp" ]; then
-        return 1
+        return 2
     fi
 
     if [ -z "$(echo $hostIp | grep -E '^[0-9\.]+$')" ]; then
+        arLog "> arWanIp4 - Invalid ip address"
         return 1
     fi
 
@@ -79,7 +72,7 @@ arWanIp6() {
 
     local hostIp
 
-    local lanIps="(^$)|(^::1$)|(^fe[8-9,A-F])"
+    local lanIps=$(arLanIp6)
 
     case $(uname) in
         'Linux')
@@ -107,6 +100,106 @@ arWanIp6() {
 
     echo $hostIp
 
+}
+
+# Get IPv4 from a specific interface
+# Args: interface
+
+arDevIp4() {
+
+    local hostIp
+
+    local lanIps=$(arLanIp4)
+
+    case $(uname) in
+        'Linux')
+            hostIp=$(ip -o -4 addr show dev $1 primary | grep -oE 'inet [0-9.]+' | awk '{print $2}' | grep -Ev "$lanIps" | head -n 1)
+        ;;
+    esac
+
+    if [ -z "$hostIp" ]; then
+        arLog "> arDevIp4 - Can't get ip address"
+        return 1
+    fi
+
+    if [ -z "$(echo $hostIp | grep -E '^[0-9\.]+$')" ]; then
+        arLog "> arDevIp4 - Invalid ip address"
+        return 1
+    fi
+
+    echo $hostIp
+
+}
+
+# Get IPv6 from a specific interface
+# Args: interface
+
+arDevIp6() {
+
+    local hostIp
+
+    local lanIps=$(arLanIp6)
+
+    case $(uname) in
+        'Linux')
+            # Try obtain home address (a speical permanent address for mobile devices)
+            hostIp=$(ip -o -6 addr show dev $1 scope global home | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            if [ -z "$hostIp" ]; then # Try obtain permanent address
+                hostIp=$(ip -o -6 addr show dev $1 scope global permanent | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            fi
+            if [ -z "$hostIp" ]; then # Try obtain non-deprecated primary (non-temporary) non-mngtmpaddr (mngtmpaddr is template for temporary address creation) address then
+                hostIp=$(ip -o -6 addr show dev $1 scope global -deprecated primary | grep -v mngtmpaddr | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            fi
+            if [ -z "$hostIp" ]; then # Try obtain non-deprecated primary address then
+                hostIp=$(ip -o -6 addr show dev $1 scope global -deprecated primary | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            fi
+            if [ -z "$hostIp" ]; then # Try obtain non-deprecated address any at last
+                hostIp=$(ip -o -6 addr show dev $1 scope global -deprecated | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            fi
+            hostIp=$(echo "$hostIp" | head -n 1) # Fetch at most one address
+        ;;
+    esac
+
+    if [ -z "$hostIp" ]; then
+        arLog "> arDevIp6 - Can't get ip address"
+        return 1
+    fi
+
+    if [ -z "$(echo $hostIp | grep -E '^[0-9a-fA-F:]+$')" ]; then
+        arLog "> arDevIp6 - Invalid ip address"
+        return 1
+    fi
+
+    echo $hostIp
+
+}
+
+# Get regular expression for IPv4 LAN addresses
+
+arLanIp4() {
+    local lanIps="^$"
+
+    lanIps="$lanIps|(^10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)"
+    lanIps="$lanIps|(^127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$)"
+    lanIps="$lanIps|(^169\.254\.[0-9]{1,3}\.[0-9]{1,3}$)"
+    lanIps="$lanIps|(^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3}$)"
+    lanIps="$lanIps|(^192\.168\.[0-9]{1,3}\.[0-9]{1,3}$)"
+    lanIps="$lanIps|(^100\.(6[4-9]|[7-9][0-9])\.[0-9]{1,3}\.[0-9]{1,3}$)"  # 100.64.x.x - 100.99.x.x
+    lanIps="$lanIps|(^100\.1([0-1][0-9]|2[0-7])\.[0-9]{1,3}\.[0-9]{1,3}$)" # 100.100.x.x - 100.127.x.x
+
+    echo $lanIps
+}
+
+# Get regular expression for IPv6 LAN addresses
+
+arLanIp6() {
+    local lanIps="(^$)"
+
+    lanIps="$lanIps|(^::1$)"
+    lanIps="$lanIps|(^[fF][eE][8-9a-fA-F])" # Link-local addresses
+    lanIps="$lanIps|(^[fF][cdCD])" # Unique local addresses
+
+    echo $lanIps
 }
 
 # Dnspod Bridge
@@ -208,7 +301,7 @@ arDdnsUpdate() {
 }
 
 # DDNS Check
-# Args: domain subdomain [6|4]
+# Args: domain subdomain [6|4] interface
 
 arDdnsCheck() {
 
@@ -217,39 +310,46 @@ arDdnsCheck() {
     local recordId
     local recordType
 
+    local errCode
+
     arLog "=== Check $2.$1 ==="
     arLog "Fetching Host Ip"
 
-    if [ "$3" = "6" ]; then
+    if   [ "$3" = "6" ] && [ -n "$4" ]; then
+        recordType=AAAA
+        hostIp=$(arDevIp6 "$4")
+    elif [ "$3" = "4" ] && [ -n "$4" ]; then
+        recordType=A
+        hostIp=$(arDevIp4 "$4")
+    elif [ "$3" = "6" ]; then
         recordType=AAAA
         hostIp=$(arWanIp6)
-        if [ $? -ne 0 ]; then
-            arLog $hostIp
-            return 1
-        else
-            arLog "> Host Ip: $hostIp"
-            arLog "> Record Type: $recordType"
-        fi
     else
         recordType=A
         hostIp=$(arWanIp4)
-        if [ $? -ne 0 ]; then
-            arLog "> Host Ip: Auto"
-            arLog "> Record Type: $recordType"
-        else
-            arLog "> Host Ip: $hostIp"
-            arLog "> Record Type: $recordType"
-        fi
+    fi
+
+    errCode=$?
+    if [ $errCode -eq 0 ]; then
+        arLog "> Host Ip: $hostIp"
+        arLog "> Record Type: $recordType"
+    elif [ $errCode -eq 2 ]; then
+        arLog "> Host Ip: Auto"
+        arLog "> Record Type: $recordType"
+    else
+        arLog "$hostIp"
+        return $errCode
     fi
 
     arLog "Fetching RecordId"
     recordId=$(arDdnsLookup "$1" "$2" "$recordType")
 
-    if [ $? -ne 0 ]; then
-        arLog $recordId
-        return 1
-    else
+    errCode=$?
+    if [ $errCode -eq 0 ]; then
         arLog "> Record Id: $recordId"
+    else
+        arLog "$recordId"
+        return $errCode
     fi
 
     arLog "Updating Record value"
