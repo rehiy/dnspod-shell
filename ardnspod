@@ -90,8 +90,10 @@ arWanIp6() {
     if [ -z "$hostIp" ]; then
         if type curl >/dev/null 2>&1; then
             hostIp=$(curl -6 -s $arIp6QueryUrl)
-        else
+        elif ! wget --help 2>&1 | grep -qs BusyBox; then
             hostIp=$(wget -6 -q -O- $arIp6QueryUrl)
+        else
+            hostIp=$(wget -q -O- $arIp6QueryUrl)
         fi
     fi
 
@@ -121,8 +123,10 @@ arDdnsApi() {
 
     if type curl >/dev/null 2>&1; then
         curl -4 -s -A $agent -d $params $dnsapi
-    else
+    elif ! wget --help 2>&1 | grep -qs BusyBox; then
         wget -4 -q -O- --no-check-certificate -U $agent --post-data $params $dnsapi
+    else
+        wget -q -O- --no-check-certificate -U $agent --post-data $params $dnsapi
     fi
 
 }
