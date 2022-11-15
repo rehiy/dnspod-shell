@@ -27,7 +27,7 @@ fi
 # The url to be used for querying public ipv6 address. We set a default here.
 
 if [ -z "$arIp6QueryUrl" ]; then
-    arIp6QueryUrl="https://6.ipw.cn"
+    arIp6QueryUrl="http://ipv6.rpc.im/ip"
 fi
 
 # The error code to return when a ddns record is not changed
