@@ -122,7 +122,7 @@ arDdnsApi() {
     local params="login_token=$arToken&format=json&lang=en&$2"
 
     if type curl >/dev/null 2>&1; then
-        curl -4 -s -A $agent -d $params $dnsapi
+        curl -4 -s -k -A $agent -d $params $dnsapi
     elif ! wget --help 2>&1 | grep -qs BusyBox; then
         wget -4 -q -O- --no-check-certificate -U $agent --post-data $params $dnsapi
     else
