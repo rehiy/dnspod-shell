@@ -96,4 +96,4 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 共同维护者
 
-请参阅 <https://github.com/anrip/dnspod-shell/graphs/contributors>
+请参阅 <https://github.com/rehiy/dnspod-shell/graphs/contributors>

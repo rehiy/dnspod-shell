@@ -9,7 +9,7 @@
 # Author: Rehiy, https://github.com/rehiy
 #                https://www.rehiy.com/?s=dnspod
 #
-# Collaborators: ProfFan, https://github.com/ProfFan
+# Collaborators: https://github.com/rehiy/dnspod-shell/graphs/contributors
 #
 # Usage: please refer to `ddnspod.sh`
 #
@@ -101,8 +101,6 @@ arWanIp4() {
 
     local hostIp
     local lanIps=$(arLanIp4)
-
-    local agent="AnripDdns/6.2.0(wang@rehiy.com)"
 
     case $(uname) in
         'Linux')
