@@ -51,7 +51,11 @@ arRequest() {
 
     if type curl >/dev/null 2>&1; then
         if echo $url | grep -q https; then
-            params="$params -k"
+            if [ ! -r "/etc/ssl/certs/ca-certificates.crt" ]; then
+                params="$params -k"
+            else
+                params="$params --cacert /etc/ssl/certs/ca-certificates.crt"
+            fi
         fi
         if [ -n "$data" ]; then
             params="$params -d $data"
@@ -62,7 +66,11 @@ arRequest() {
 
     if type wget >/dev/null 2>&1; then
         if echo $url | grep -q https; then
-            params="$params --no-check-certificate"
+            if [ ! -r "/etc/ssl/certs/ca-certificates.crt" ]; then
+                params="$params --no-check-certificate"
+            elif wget --help 2>&1 | grep -qs "GNU Wget"; then
+                params="$params --ca-certificate /etc/ssl/certs/ca-certificates.crt"
+            fi
         fi
         if [ -n "$data" ]; then
             params="$params --post-data $data"
