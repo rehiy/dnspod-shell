@@ -19,23 +19,22 @@ export arToken
 
 # The url to be used for querying public ipv6 address. We set a default here.
 
-if [ -z "$arIp6QueryUrl" ]; then
-    arIp6QueryUrl="http://ipv6.rpc.im/ip"
-fi
+export arIp6QueryUrl="http://ipv6.rpc.im/ip"
 
 # The error code to return when a ddns record is not changed
+# By default, report unchanged event as success
 
-if [ -z "$arErrCodeUnchanged" ]; then
-    arErrCodeUnchanged=0 # By default, report unchanged event as success
-fi
+export arErrCodeUnchanged=0
 
-# Define arLog to output to stderr, if not defined in ddnspod.sh
+################################################################### logger ##
 
-if ! type arLog >/dev/null 2>&1; then
-    arLog() {
-        >&2 echo $@
-    }
-fi
+# Output log to stderr
+
+arLog() {
+
+    >&2 echo $@
+
+}
 
 ################################################################### http client ##
 
