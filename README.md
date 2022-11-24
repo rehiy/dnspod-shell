@@ -94,6 +94,18 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 - 进一步 POSIX 化，支持 Mac 和大部分 Linux 发行版
 - 更改配置文件格式
 
+2015/7/23
+
+- 代码托管到 github
+
+2013/03/28
+
+- 稳定版发布，同时被收入到官方插件列表
+
+2011/07/03
+
+- 小范围测试版发布
+
 # 共同维护者
 
 请参阅 <https://github.com/rehiy/dnspod-shell/graphs/contributors>
