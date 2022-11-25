@@ -100,7 +100,7 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 2013/03/28
 
-- 稳定版发布，同时被收入到官方插件列表
+- 稳定版发布，同时被收录到官方插件列表
 
 2011/07/03
 
