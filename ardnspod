@@ -21,6 +21,9 @@ export arToken
 
 export arIp6QueryUrl="http://ipv6.rpc.im/ip"
 
+# Colon-separated paths to CA certificates for validation in an HTTPs request.
+export arCaCertificates="/etc/ssl/certs/ca-certificates.crt:/opt/etc/ssl/certs/ca-certificates.crt"
+
 # The error code to return when a ddns record is not changed
 # By default, report unchanged event as success
 
@@ -49,12 +52,14 @@ arRequest() {
     local params=""
     local agent="AnripDdns/6.3.0(wang@rehiy.com)"
 
+    local cacert=$(echo "$arCaCertificates" | tr ':' '\n' | xargs -I{} sh -c '[ -r {} ] && echo {}' 2>/dev/null | head -n 1)
+
     if type curl >/dev/null 2>&1; then
-        if echo $url | grep -q https; then
-            if [ ! -r "/etc/ssl/certs/ca-certificates.crt" ]; then
+        if echo $url | grep -q ^https; then
+            if [ -z "$cacert" ]; then
                 params="$params -k"
             else
-                params="$params --cacert /etc/ssl/certs/ca-certificates.crt"
+                params="$params --cacert $cacert"
             fi
         fi
         if [ -n "$data" ]; then
@@ -65,11 +70,11 @@ arRequest() {
     fi
 
     if type wget >/dev/null 2>&1; then
-        if echo $url | grep -q https; then
-            if [ ! -r "/etc/ssl/certs/ca-certificates.crt" ]; then
+        if echo $url | grep -q ^https; then
+            if [ -z "$cacert" ]; then
                 params="$params --no-check-certificate"
             elif wget --help 2>&1 | grep -qs "GNU Wget"; then
-                params="$params --ca-certificate /etc/ssl/certs/ca-certificates.crt"
+                params="$params --ca-certificate $cacert"
             fi
         fi
         if [ -n "$data" ]; then

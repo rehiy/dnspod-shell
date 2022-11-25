@@ -11,6 +11,10 @@ arToken="12345,7676f344eaeaea9074c123451234512d"
 # Set this to override the default url provided by ardnspod
 # arIp6QueryUrl="https://6.ipw.cn"
 
+# CA certificates for validation in an HTTPs request. Multiple paths are colon-separated
+# Set this to provide CA certificates stored in custom location
+# arCaCertificates="/etc/ssl/certs/ca-certificates.crt:/opt/etc/ssl/certs/ca-certificates.crt"
+
 # Return code when the last record IP is same as current host IP
 # Set this to a value other than 0 to distinguish with a successful ddns update
 # arErrCodeUnchanged=0
