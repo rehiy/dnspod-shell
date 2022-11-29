@@ -37,7 +37,7 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 最近更新
 
-2022/12/24
+2022/11/24
 
 - 支持指定网卡
 - 增加 arRequest 方法，实现 curl/wget 封装
