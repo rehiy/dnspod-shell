@@ -19,7 +19,7 @@ export arToken
 
 # The url to be used for querying public ipv6 address. We set a default here.
 
-export arIp6QueryUrl="http://ipv6.rpc.im/ip"
+export arIp6QueryUrl="http://ipv6.rehi.org/ip"
 
 # The error code to return when a ddns record is not changed
 # By default, report unchanged event as success
