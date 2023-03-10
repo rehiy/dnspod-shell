@@ -16,8 +16,6 @@
 ################################################################### params ##
 
 ip=/usr/sbin/ip
-curl=/usr/bin/curl
-wget=/usr/bin/wget
 
 export arToken
 
@@ -60,7 +58,7 @@ arRequest() {
         if [ -n "$data" ]; then
             params="$params -d $data"
         fi
-        $curl -s -A "$agent" $params $url
+        curl -s -A "$agent" $params $url
         return $?
     fi
 
@@ -71,7 +69,7 @@ arRequest() {
         if [ -n "$data" ]; then
             params="$params --post-data $data"
         fi
-        $wget -qO- -U "$agent" $params $url
+        wget -qO- -U "$agent" $params $url
         return $?
     fi
 
