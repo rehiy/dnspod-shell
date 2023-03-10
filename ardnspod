@@ -290,19 +290,23 @@ arDdnsUpdate() {
 
     local lastRecordIp
 
-    # if code for unchanged event is specified to be different from updated event, we fetch the last record ip
-    if [ $arErrCodeUnchanged -ne 0 ]; then
-        recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
-        recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
-        lastRecordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
+    # we always fetch the last record ip because it's an abuse to update unchanged records
+    recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
+    recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+    lastRecordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
-        if [ "$recordCd" != "1" ]; then
-            errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-            arLog "> arDdnsUpdate - error: $errMsg"
-            return 1
-        else
-            arLog "> arDdnsUpdate - last record ip: $lastRecordIp"
-        fi
+    if [ "$recordCd" != "1" ]; then
+        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+        arLog "> arDdnsUpdate - error: $errMsg"
+        return 1
+    else
+        arLog "> arDdnsUpdate - last record ip: $lastRecordIp"
+    fi
+
+    if [ "$lastRecordIp" = "$5" ]; then
+        arLog "> arDdnsUpdate - unchanged: $5" # unchanged event
+        echo $lastRecordIp
+        return $arErrCodeUnchanged
     fi
 
     # update ip
@@ -320,12 +324,8 @@ arDdnsUpdate() {
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
         arLog "> arDdnsUpdate - error: $errMsg"
         return 1
-    elif [ $arErrCodeUnchanged -eq 0 ]; then
-        arLog "> arDdnsUpdate - success: $recordIp" # both unchanged and updated event
-        echo $recordIp
-        return 0
     elif [ "$recordIp" = "$lastRecordIp" ]; then
-        arLog "> arDdnsUpdate - unchanged: $recordIp" # unchanged event
+        arLog "> arDdnsUpdate - updated-unchanged: $recordIp" # unchanged event
         echo $recordIp
         return $arErrCodeUnchanged
     else
