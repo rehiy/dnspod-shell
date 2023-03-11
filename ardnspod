@@ -299,30 +299,31 @@ arDdnsUpdate() {
 
     local lastRecordIp
 
-    # we always fetch the last record ip because it's an abuse to update unchanged records
-    recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
-    recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
-    lastRecordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
+    if [ -n "$5" ] || [ $arErrCodeUnchanged -ne 0 ]; then
+        # we always fetch the last record ip because it's an abuse to update unchanged records
+        recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
+        recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+        lastRecordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
-    if [ "$recordCd" != "1" ]; then
-        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-        arLog "> arDdnsUpdate - error: $errMsg"
-        return 1
-    else
-        arLog "> arDdnsUpdate - last record ip: $lastRecordIp"
-    fi
+        if [ "$recordCd" != "1" ]; then
+            errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+            arLog "> arDdnsUpdate - error: $errMsg"
+            return 1
+        else
+            arLog "> arDdnsUpdate - last record ip: $lastRecordIp"
+        fi
 
-    if [ "$lastRecordIp" = "$5" ]; then
-        arLog "> arDdnsUpdate - unchanged: $5" # unchanged event
-        echo $lastRecordIp
-        return $arErrCodeUnchanged
-    fi
+        if [ "$lastRecordIp" = "$5" ]; then
+            arLog "> arDdnsUpdate - unchanged: $5" # unchanged event
+            echo $lastRecordIp
+            return $arErrCodeUnchanged
+        fi
 
-    # update ip
-    if [ -z "$5" ]; then
-        recordRs=$(arDdnsApi "Record.Ddns" "domain=$1&sub_domain=$2&record_id=$3&record_type=$4&record_line=%e9%bb%98%e8%ae%a4")
-    else
+        # update ddns with ip
         recordRs=$(arDdnsApi "Record.Ddns" "domain=$1&sub_domain=$2&record_id=$3&record_type=$4&value=$5&record_line=%e9%bb%98%e8%ae%a4")
+    else
+        # update ddns without ip
+        recordRs=$(arDdnsApi "Record.Ddns" "domain=$1&sub_domain=$2&record_id=$3&record_type=$4&record_line=%e9%bb%98%e8%ae%a4")
     fi
 
     # parse result
@@ -333,6 +334,10 @@ arDdnsUpdate() {
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
         arLog "> arDdnsUpdate - error: $errMsg"
         return 1
+    elif [ -z "$5" ] && [ $arErrCodeUnchanged -eq 0 ]; then
+        arLog "> arDdnsUpdate - success: $recordIp" # both unchanged and updated event
+        echo $recordIp
+        return 0
     elif [ "$recordIp" = "$lastRecordIp" ]; then
         arLog "> arDdnsUpdate - updated-unchanged: $recordIp" # unchanged event
         echo $recordIp
