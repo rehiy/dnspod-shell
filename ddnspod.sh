@@ -4,6 +4,9 @@
 # Import ardnspod functions
 . /your_real_path/ardnspod
 
+# Define command locations
+arCmdIp=/usr/bin/ip
+
 # Combine your token ID and token together as follows
 arToken="12345,7676f344eaeaea9074c123451234512d"
 

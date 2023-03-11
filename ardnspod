@@ -15,8 +15,6 @@
 #
 ################################################################### params ##
 
-ip=/usr/sbin/ip
-
 export arToken
 
 # The url to be used for querying public ipv6 address. We set a default here.
@@ -27,6 +25,10 @@ export arIp6QueryUrl="http://ipv6.rehi.org/ip"
 # By default, report unchanged event as success
 
 export arErrCodeUnchanged=0
+
+# Locations with full path for commands to run in cron environment
+
+export arCmdIp
 
 ################################################################### logger ##
 
@@ -111,7 +113,7 @@ arWanIp4() {
 
     case $(uname) in
         'Linux')
-            hostIp=$($ip -o -4 route get 100.64.0.1 | grep -oE 'src [0-9\.]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            hostIp=$($arCmdIp -o -4 route get 100.64.0.1 | grep -oE 'src [0-9\.]+' | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
         Darwin|FreeBSD)
             hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
@@ -141,7 +143,7 @@ arDevIp4() {
 
     case $(uname) in
         'Linux')
-            hostIp=$($ip -o -4 addr show dev $1 primary | grep -oE 'inet [0-9.]+' | awk '{print $2}' | grep -Ev "$lanIps" | head -n 1)
+            hostIp=$($arCmdIp -o -4 addr show dev $1 primary | grep -oE 'inet [0-9.]+' | awk '{print $2}' | grep -Ev "$lanIps" | head -n 1)
         ;;
     esac
 
@@ -188,7 +190,7 @@ arWanIp6() {
 
     case $(uname) in
         'Linux')
-            hostIp=$($ip -o -6 route get 100::1 | grep -oE 'src [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            hostIp=$($arCmdIp -o -6 route get 100::1 | grep -oE 'src [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
     esac
 
@@ -221,18 +223,18 @@ arDevIp6() {
     case $(uname) in
         'Linux')
             # Try obtain home address (a speical permanent address for mobile devices)
-            hostIp=$($ip -o -6 addr show dev $1 scope global home | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+            hostIp=$($arCmdIp -o -6 addr show dev $1 scope global home | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
             if [ -z "$hostIp" ]; then # Try obtain permanent address
-                hostIp=$($ip -o -6 addr show dev $1 scope global permanent | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+                hostIp=$($arCmdIp -o -6 addr show dev $1 scope global permanent | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
             fi
             if [ -z "$hostIp" ]; then # Try obtain non-deprecated primary (non-temporary) non-mngtmpaddr (mngtmpaddr is template for temporary address creation) address then
-                hostIp=$($ip -o -6 addr show dev $1 scope global -deprecated primary | grep -v mngtmpaddr | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+                hostIp=$($arCmdIp -o -6 addr show dev $1 scope global -deprecated primary | grep -v mngtmpaddr | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
             fi
             if [ -z "$hostIp" ]; then # Try obtain non-deprecated primary address then
-                hostIp=$($ip -o -6 addr show dev $1 scope global -deprecated primary | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+                hostIp=$($arCmdIp -o -6 addr show dev $1 scope global -deprecated primary | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
             fi
             if [ -z "$hostIp" ]; then # Try obtain non-deprecated address any at last
-                hostIp=$($ip -o -6 addr show dev $1 scope global -deprecated | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
+                hostIp=$($arCmdIp -o -6 addr show dev $1 scope global -deprecated | grep -oE 'inet6 [0-9a-fA-F:]+' | awk '{print $2}' | grep -Ev "$lanIps")
             fi
             hostIp=$(echo "$hostIp" | head -n 1) # Fetch at most one address
         ;;
