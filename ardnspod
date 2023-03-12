@@ -26,9 +26,11 @@ export arIp6QueryUrl="http://ipv6.rehi.org/ip"
 
 export arErrCodeUnchanged=0
 
-# Locations with full path for commands to run in cron environment
+# Full paths of privileged commands. They vary among different systems.
+# By default, we use the values on the current system.
 
-export arCmdIp
+export arCmdIp=$(which ip)
+export arCmdIfconfig=$(which ifconfig)
 
 ################################################################### logger ##
 
@@ -116,7 +118,7 @@ arWanIp4() {
             hostIp=$($arCmdIp -o -4 route get 100.64.0.1 | grep -oE 'src [0-9\.]+' | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
         Darwin|FreeBSD)
-            hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
+            hostIp=$($arCmdIfconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
     esac
 

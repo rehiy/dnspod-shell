@@ -4,8 +4,11 @@
 # Import ardnspod functions
 . /your_real_path/ardnspod
 
-# Define command locations
-arCmdIp=/usr/bin/ip
+# Full paths of privileged commands
+# Set these to the real full path on your system of the commands if you run the
+# script in cron or similar environment
+#arCmdIp=$(which ip)
+#arCmdIfconfig=$(which ifconfig)
 
 # Combine your token ID and token together as follows
 arToken="12345,7676f344eaeaea9074c123451234512d"
