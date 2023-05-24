@@ -2,7 +2,7 @@
 #
 
 ###################################################################
-# AnripDdns v6.3.0
+# AnripDdns v6.4.0
 #
 # Dynamic DNS using DNSPod API
 #
@@ -17,9 +17,14 @@
 
 export arToken
 
-# The url to be used for querying public ipv6 address. We set a default here.
+# The url to be used for querying public ip address.
 
+export arIp4QueryUrl="http://ipv4.rehi.org/ip"
 export arIp6QueryUrl="http://ipv6.rehi.org/ip"
+
+# The temp file to store the last record ip
+
+export arLastRecordFile=/run/ardnspod_last_record
 
 # The error code to return when a ddns record is not changed
 # By default, report unchanged event as success
@@ -47,7 +52,7 @@ arRequest() {
     local data="$2"
 
     local params=""
-    local agent="AnripDdns/6.3.0(wang@rehiy.com)"
+    local agent="AnripDdns/6.4.0(wang@rehiy.com)"
 
     if type curl >/dev/null 2>&1; then
         if echo $url | grep -q https; then
@@ -115,6 +120,10 @@ arWanIp4() {
             hostIp=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | grep -Ev "$lanIps")
         ;;
     esac
+
+    if [ -z "$hostIp" ]; then
+        hostIp=$(arRequest $arIp4QueryUrl)
+    fi
 
     if [ -z "$hostIp" ]; then
         return 2
@@ -299,19 +308,20 @@ arDdnsUpdate() {
 
     local lastRecordIp
 
-    # if code for unchanged event is specified to be different from updated event, we fetch the last record ip
-    if [ $arErrCodeUnchanged -ne 0 ]; then
+    if [ -f $arLastRecordFile ]; then
+        lastRecordIp=$(cat $arLastRecordFile)
+    fi
+
+    # fetch the last record ip from api
+    if [ -z "$lastRecordIp" ]; then
         recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
         recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
         lastRecordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
+    fi
 
-        if [ "$recordCd" != "1" ]; then
-            errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
-            arLog "> arDdnsUpdate - error: $errMsg"
-            return 1
-        else
-            arLog "> arDdnsUpdate - last record ip: $lastRecordIp"
-        fi
+    if [ "$5" = "$lastRecordIp" ]; then
+        arLog "> arDdnsUpdate - unchanged: $recordIp" # unchanged event
+        return $arErrCodeUnchanged
     fi
 
     # update ip
@@ -329,16 +339,13 @@ arDdnsUpdate() {
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
         arLog "> arDdnsUpdate - error: $errMsg"
         return 1
-    elif [ $arErrCodeUnchanged -eq 0 ]; then
-        arLog "> arDdnsUpdate - success: $recordIp" # both unchanged and updated event
-        echo $recordIp
-        return 0
     elif [ "$recordIp" = "$lastRecordIp" ]; then
         arLog "> arDdnsUpdate - unchanged: $recordIp" # unchanged event
         echo $recordIp
         return $arErrCodeUnchanged
     else
         arLog "> arDdnsUpdate - updated: $recordIp" # updated event
+        echo $recordIp > $arLastRecordFile
         echo $recordIp
         return 0
     fi
