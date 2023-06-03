@@ -24,7 +24,7 @@ export arIp6QueryUrl="http://ipv6.rehi.org/ip"
 
 # The temp file to store the last record ip
 
-export arLastRecordFile=/run/ardnspod_last_record
+export arLastRecordFile=/tmp/ardnspod_last_record
 
 # The error code to return when a ddns record is not changed
 # By default, report unchanged event as success
@@ -308,11 +308,12 @@ arDdnsUpdate() {
 
     local lastRecordIp
 
+    # fetch last ip
     if [ -f $arLastRecordFile ]; then
         lastRecordIp=$(cat $arLastRecordFile)
     fi
 
-    # fetch the last record ip from api
+    # fetch from api
     if [ -z "$lastRecordIp" ]; then
         recordRs=$(arDdnsApi "Record.Info" "domain=$1&record_id=$3")
         recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
@@ -334,18 +335,19 @@ arDdnsUpdate() {
     recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
     recordIp=$(echo $recordRs | sed 's/.*,"value":"\([0-9a-fA-F\.\:]*\)".*/\1/')
 
+    # check result
     if [ "$recordCd" != "1" ]; then
         errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
         arLog "> arDdnsUpdate - error: $errMsg"
         return 1
     elif [ "$recordIp" = "$lastRecordIp" ]; then
         arLog "> arDdnsUpdate - unchanged: $recordIp" # unchanged event
-        echo $recordIp
         return $arErrCodeUnchanged
     else
         arLog "> arDdnsUpdate - updated: $recordIp" # updated event
-        echo $recordIp > $arLastRecordFile
-        echo $recordIp
+        if [ -n "$arLastRecordFile" ]; then
+            echo $recordIp > $arLastRecordFile
+        fi
         return 0
     fi
 
