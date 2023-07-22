@@ -38,6 +38,10 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 最近更新
 
+2023/7/22
+
+- Bug fix: 当需要替换根域名时, 如果传入 @ `(如 @.domain.xx)`, 会错误得到 `*.domain.xx` 的结果 `(A记录设置了*的话)`, 导致更新失败. 修改后在传入 `@` 作为子域名时, 直接请求根域名的结果
+
 2023/5/24
 
 - 恢复支持变更检测
