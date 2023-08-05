@@ -312,10 +312,11 @@ arDdnsUpdate() {
     local recordIp
 
     local lastRecordIp
+    local lastRecordIpFile="$arLastRecordFile.$3"
 
     # fetch last ip
-    if [ -f $arLastRecordFile ]; then
-        lastRecordIp=$(cat $arLastRecordFile)
+    if [ -f $lastRecordIpFile ]; then
+        lastRecordIp=$(cat $lastRecordIpFile)
     fi
 
     # fetch from api
@@ -350,8 +351,8 @@ arDdnsUpdate() {
         return $arErrCodeUnchanged
     else
         arLog "> arDdnsUpdate - updated: $recordIp" # updated event
-        if [ -n "$arLastRecordFile" ]; then
-            echo $recordIp > $arLastRecordFile
+        if [ -n "$lastRecordIpFile" ]; then
+            echo $recordIp > $lastRecordIpFile
         fi
         return 0
     fi
