@@ -38,6 +38,10 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 最近更新
 
+2023/8/5
+
+- 根据记录Id缓存本地IP
+
 2023/5/24
 
 - 恢复支持变更检测
