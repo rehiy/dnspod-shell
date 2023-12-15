@@ -282,8 +282,13 @@ arDdnsLookup() {
 
     local recordId
 
+    if [ "$2" != "@" ]; then
+        # No sub_domain for root domain
+        subDomainRule="&sub_domain=$2"
+    fi
+
     # Get Record Id
-    recordId=$(arDdnsApi "Record.List" "domain=$1&sub_domain=$2&record_type=$3")
+    recordId=$(arDdnsApi "Record.List" "domain=$1${subDomainRule}&record_type=$3")
     recordId=$(echo $recordId | sed 's/.*"id":"\([0-9]*\)".*/\1/')
 
     if ! [ "$recordId" -gt 0 ] 2>/dev/null ;then
