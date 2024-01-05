@@ -331,7 +331,7 @@ arDdnsUpdate() {
         recordRs=$(arDdnsApi "Record.Ddns" "domain=$1&sub_domain=$2&record_id=$3&record_type=$4&record_line=%e9%bb%98%e8%ae%a4")
     else
         if [ "$5" = "$lastRecordIp" ]; then
-            arLog "> arDdnsUpdate - unchanged: $recordIp" # unchanged event
+            arLog "> arDdnsUpdate - unchanged: $lastRecordIp" # unchanged event
             return $arErrCodeUnchanged
         fi
         recordRs=$(arDdnsApi "Record.Ddns" "domain=$1&sub_domain=$2&record_id=$3&record_type=$4&value=$5&record_line=%e9%bb%98%e8%ae%a4")
