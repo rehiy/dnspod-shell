@@ -1,9 +1,9 @@
 #!/bin/sh
-#
+
+cd "$(dirname "$0")"
 
 # Import ardnspod functions
-
-. /your_real_path/ardnspod
+. ardnspod
 
 # Combine your token ID and token together as follows
 
