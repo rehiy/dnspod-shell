@@ -31,6 +31,12 @@ export arLastRecordFile=/tmp/ardnspod_last_record
 
 export arErrCodeUnchanged=0
 
+# indicates whether a new domain record should be created
+# if the record does not already exist. It is set to 1 (true) if a new record should be created
+# when the domain record is missing, and 0 (false) otherwise.
+
+export arIsCreateRecord=0
+
 ################################################################### logger ##
 
 # Output log to stderr
@@ -294,6 +300,11 @@ arDdnsLookup() {
     if ! [ "$recordId" -gt 0 ] 2>/dev/null ;then
         errMsg=$(echo $recordId | sed 's/.*"message":"\([^\"]*\)".*/\1/')
         arLog "> arDdnsLookup - $errMsg"
+        if [ $arIsCreateRecord -eq 1 ]; then
+            if [ "$errMsg" = "No records on the list" ]; then
+                return 2
+            fi
+        fi
         return 1
     fi
 
@@ -408,6 +419,17 @@ arDdnsCheck() {
     errCode=$?
     if [ $errCode -eq 0 ]; then
         arLog "> Record Id: $recordId"
+    elif [ $errCode -eq 2  ]; then
+        arLog "Creating Record value"
+        recordId=$(arDdnsCreate "$1" "$2" "$recordType" "$hostIp")
+        errCode=$?
+        if [ $errCode -eq 0 ]; then
+            arLog "> Record Id: $recordId"
+            return 0
+        else
+            arLog "$recordId"
+            return $errCode
+        fi
     else
         arLog "$recordId"
         return $errCode
@@ -415,6 +437,35 @@ arDdnsCheck() {
 
     arLog "Updating Record value"
     arDdnsUpdate "$1" "$2" "$recordId" "$recordType" "$hostIp"
+
+}
+
+# Create Record
+# Args: domain subdomain recordType hostIp
+
+arDdnsCreate() {
+
+    local errMsg
+
+    local recordRs
+    local recordCd
+
+    # create record
+    recordRs=$(arDdnsApi "Record.Create" "domain=$1&sub_domain=$2&record_type=$3&value=$4&record_line=%e9%bb%98%e8%ae%a4")
+
+    # parse result
+    recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+    recordId=$(echo $recordRs | sed 's/.*{"id":"\([0-9]*\)".*/\1/')
+
+    # check result
+    if [ "$recordCd" != "1" ]; then
+        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+        arLog "> arDdnsCreate - error: $errMsg"
+        return 1
+    fi
+
+    arLog "> arDdnsCreate - created: $4"
+    echo $recordId
 
 }
 

@@ -24,6 +24,12 @@ arLastRecordFile=/tmp/ardnspod_last_record
 
 arErrCodeUnchanged=0
 
+# indicates whether a new domain record should be created
+# if the record does not already exist. It is set to 1 (true) if a new record should be created
+# when the domain record is missing, and 0 (false) otherwise.
+
+arIsCreateRecord=0
+
 # Place each domain you want to check as follows
 # you can have multiple arDdnsCheck blocks
 
