@@ -58,7 +58,7 @@ arRequest() {
     local data="$2"
 
     local params=""
-    local agent="AnripDdns/6.4.0(wang@rehiy.com)"
+    local agent="AnripDdns/6.5.0(wang@rehiy.com)"
 
     if type curl >/dev/null 2>&1; then
         if echo $url | grep -q https; then
