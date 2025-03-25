@@ -38,6 +38,9 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 最近更新
 
+2025/3/19
+- 支持删除记录，方便管理
+
 2025/2/21
 
 - 支持创建记录，当记录不存在时创建
