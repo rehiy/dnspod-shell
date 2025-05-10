@@ -11,6 +11,8 @@ arToken="12345,7676f344eaeaea9074c123451234512d"
 
 # Web endpoint to be used for querying the public IPv6 address
 # Set this to override the default url provided by ardnspod
+#   ipv4 backup api https://ipv4.ddnsip.cn
+#   ipv6 backup api https://ipv6.ddnsip.cn
 
 arIp4QueryUrl="http://ipv4.rehi.org/ip"
 arIp6QueryUrl="http://ipv6.rehi.org/ip"
