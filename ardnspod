@@ -469,4 +469,50 @@ arDdnsCreate() {
 
 }
 
+# Delete Record
+# Args: domain subdomain recordType
+
+arDdnsDelete() {
+
+    local errCode
+    local recordId
+    local recordType
+    local recordCd
+    local recordRs
+
+    arLog "=== Delete $2.$1 ==="
+
+    if [ "$3" = "6" ]; then
+        recordType=AAAA
+    else
+        recordType=A
+    fi
+
+    arLog "> Record Type: $recordType"
+
+    arLog "Fetching RecordId"
+    recordId=$(arDdnsLookup "$1" "$2" "$recordType")
+
+    errCode=$?
+    if [ $errCode -eq 0 ]; then
+        arLog "> Record Id: $recordId"
+    else
+        return $errCode
+    fi
+
+    arLog "Deleting Record"
+    recordRs=$(arDdnsApi "Record.Remove" "domain=$1&record_id=$recordId")
+
+    # check result
+    recordCd=$(echo $recordRs | sed 's/.*{"code":"\([0-9]*\)".*/\1/')
+    if [ "$recordCd" != "1" ]; then
+        errMsg=$(echo $recordRs | sed 's/.*,"message":"\([^"]*\)".*/\1/')
+        arLog "> arDdnsDelete - error: $errMsg"
+        return 1
+    fi
+
+    arLog "> arDdnsDelete - successful"
+
+}
+
 ################################################################### end ##
