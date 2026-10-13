@@ -33,6 +33,10 @@ echo "arDdnsCheck test.org subdomain" >> ./ardnspod
 
 # 最近更新
 
+2025/8/13
+
+- 优化ID判断逻辑，以支持大于32位有限符号整数的情况(BusyBox 32bit) @Gnail89
+
 2022/5/3
 
 - 增加强制使用第三方API获取IP的选项 @Ljzd-PRO
